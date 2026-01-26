@@ -1,0 +1,48 @@
+{
+    "folders": [
+        {
+            "name": "Lead Skylab",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4,
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "typescript.suggest.autoImports": true,
+        "emmet.includeLanguages": {
+            "javascript": "javascriptreact",
+            "typescript": "typescriptreact"
+        },
+        "files.exclude": {
+            "**/node_modules": true,
+            "**/dist": true,
+            "**/.git": true
+        },
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/dist": true
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "esbenp.prettier-vscode",
+            "dbaeumer.vscode-eslint",
+            "bradlc.vscode-tailwindcss",
+            "dsznajder.es7-react-js-snippets"
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "type": "chrome",
+                "request": "launch",
+                "name": "Launch Chrome",
+                "url": "http://localhost:5173",
+                "webRoot": "${workspaceFolder}/src"
+            }
+        ]
+    }
+}
