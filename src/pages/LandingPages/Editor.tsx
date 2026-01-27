@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import type { LandingPage, HeroContent, FormContent, FormField } from '../../types';
@@ -103,12 +103,6 @@ export default function LandingPageEditor() {
 
     const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'preview'>('content');
     const [isSaving, setIsSaving] = useState(false);
-
-    useEffect(() => {
-        if (existingPage) {
-            setPage(existingPage);
-        }
-    }, [existingPage]);
 
     const handleSave = () => {
         setIsSaving(true);

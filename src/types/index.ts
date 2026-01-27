@@ -354,6 +354,10 @@ export interface AppState {
   contentCampaigns: ContentCampaign[];
   productProfile: ProductProfile | null;
   contentTemplates: ContentTemplate[];
+  // Launch Autopilot
+  launchPlans: LaunchPlan[];
+  contentQueue: ContentQueueItem[];
+  launchTemplates: LaunchTemplate[];
 }
 
 // Content Studio Types
@@ -368,7 +372,7 @@ export type ContentPlatform =
 
 export type ContentStatus = 'draft' | 'review' | 'approved' | 'scheduled' | 'published' | 'rejected';
 
-export type ContentTone = 'professional' | 'casual' | 'bold' | 'friendly' | 'witty';
+export type ContentTone = 'professional' | 'casual' | 'bold' | 'friendly' | 'witty' | 'informative';
 
 export interface ContentPiece {
   id: string;
@@ -433,6 +437,149 @@ export interface ContentTemplate {
   example: string;
 }
 
+// =============================================
+// Launch Autopilot Types
+// =============================================
+
+export type LaunchPhaseType = 'pre_launch' | 'launch_day' | 'growth' | 'complete';
+
+export type PlanInputMode = 'import' | 'ai_analyze' | 'manual';
+
+export interface LaunchPlan {
+  id: string;
+  name: string;
+  description?: string;
+  productName: string;
+  productUrl?: string;
+  status: 'draft' | 'active' | 'paused' | 'completed';
+  inputMode: PlanInputMode;
+  phases: LaunchPhase[];
+  preferences: OwnerPreferences;
+  startDate: string;
+  launchDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LaunchPhase {
+  id: string;
+  type: LaunchPhaseType;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+  milestones: LaunchMilestone[];
+  contentItems: ContentQueueItem[];
+  status: 'pending' | 'active' | 'completed';
+}
+
+export interface LaunchMilestone {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  completed: boolean;
+  contentGoal?: number;
+}
+
+export interface OwnerPreferences {
+  // Content Strategy
+  contentPillars: string[];
+  keywords: string[];
+  competitors: string[];
+  uniqueSellingPoints: string[];
+
+  // Voice & Tone (per platform)
+  toneByPlatform: Record<ContentPlatform, ContentTone>;
+  wordsToUse: string[];
+  wordsToAvoid: string[];
+  brandPersonality: string[];
+
+  // Posting Cadence
+  frequencyByPlatform: Record<ContentPlatform, number>;
+  optimalPostingTimes: Record<ContentPlatform, string[]>;
+  postOnWeekends: boolean;
+
+  // Approval Workflow
+  approvalMode: 'auto_publish' | 'daily_digest' | 'individual_review' | 'hybrid';
+  autoApproveTypes: ContentPlatform[];
+
+  // Platform Selection
+  enabledPlatforms: ContentPlatform[];
+}
+
+export interface ContentQueueItem {
+  id: string;
+  planId: string;
+  phaseId: string;
+  content: ContentPiece;
+  scheduledDate: string;
+  scheduledTime: string;
+  status: 'queued' | 'approved' | 'published' | 'rejected' | 'failed';
+  approvedAt?: string;
+  publishedAt?: string;
+  error?: string;
+}
+
+export interface LaunchTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'saas' | 'product_hunt' | 'indie_hacker' | 'enterprise' | 'ecommerce';
+  defaultPhases: LaunchPhaseTemplate[];
+  defaultPreferences: Partial<OwnerPreferences>;
+  estimatedDuration: number;
+}
+
+export interface LaunchPhaseTemplate {
+  type: LaunchPhaseType;
+  name: string;
+  description: string;
+  durationDays: number;
+  suggestedMilestones: string[];
+}
+
+export const getDefaultPreferences = (): OwnerPreferences => ({
+  contentPillars: [],
+  keywords: [],
+  competitors: [],
+  uniqueSellingPoints: [],
+  toneByPlatform: {
+    twitter: 'witty',
+    linkedin: 'professional',
+    instagram: 'casual',
+    tiktok: 'bold',
+    reddit: 'casual',
+    facebook: 'friendly',
+    email: 'professional',
+  },
+  wordsToUse: [],
+  wordsToAvoid: [],
+  brandPersonality: [],
+  frequencyByPlatform: {
+    twitter: 3,
+    linkedin: 1,
+    instagram: 1,
+    tiktok: 1,
+    reddit: 1,
+    facebook: 1,
+    email: 0,
+  },
+  optimalPostingTimes: {
+    twitter: ['09:00', '12:00', '18:00'],
+    linkedin: ['08:00', '12:00'],
+    instagram: ['11:00', '19:00'],
+    tiktok: ['19:00', '21:00'],
+    reddit: ['10:00', '14:00'],
+    facebook: ['09:00', '15:00'],
+    email: ['10:00'],
+  },
+  postOnWeekends: false,
+  approvalMode: 'daily_digest',
+  autoApproveTypes: [],
+  enabledPlatforms: ['twitter', 'linkedin'],
+});
+
 // Context Action Types
 export type AppAction =
   | { type: 'ADD_LEAD'; payload: Lead }
@@ -461,4 +608,14 @@ export type AppAction =
   | { type: 'ADD_CAMPAIGN'; payload: ContentCampaign }
   | { type: 'UPDATE_CAMPAIGN'; payload: ContentCampaign }
   | { type: 'DELETE_CAMPAIGN'; payload: string }
-  | { type: 'SET_PRODUCT_PROFILE'; payload: ProductProfile };
+  | { type: 'SET_PRODUCT_PROFILE'; payload: ProductProfile }
+  // Launch Autopilot Actions
+  | { type: 'ADD_LAUNCH_PLAN'; payload: LaunchPlan }
+  | { type: 'UPDATE_LAUNCH_PLAN'; payload: LaunchPlan }
+  | { type: 'DELETE_LAUNCH_PLAN'; payload: string }
+  | { type: 'ADD_QUEUE_ITEM'; payload: ContentQueueItem }
+  | { type: 'UPDATE_QUEUE_ITEM'; payload: ContentQueueItem }
+  | { type: 'DELETE_QUEUE_ITEM'; payload: string }
+  | { type: 'BULK_APPROVE_QUEUE'; payload: string[] }
+  | { type: 'MOVE_CONTENT_TO_PHASE'; payload: { itemId: string; phaseType: LaunchPhaseType } };
+

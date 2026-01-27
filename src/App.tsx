@@ -18,6 +18,13 @@ import ProductAnalyzer from './pages/ContentStudio/ProductAnalyzer';
 import ContentGenerator from './pages/ContentStudio/Generator';
 import ContentCampaigns from './pages/ContentStudio/Campaigns';
 import ContentTemplates from './pages/ContentStudio/Templates';
+// Launch Autopilot
+import LaunchAutopilot from './pages/LaunchAutopilot';
+import PlanWizard from './pages/LaunchAutopilot/PlanWizard';
+import PlanKanban from './pages/LaunchAutopilot/PlanKanban';
+import ContentQueue from './pages/LaunchAutopilot/ContentQueue';
+import AutopilotPreferences from './pages/LaunchAutopilot/Preferences';
+import AutopilotAnalytics from './pages/LaunchAutopilot/Analytics';
 import './index.css';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -56,6 +63,13 @@ function App() {
             <Route path="/content/generate" element={<ContentGenerator />} />
             <Route path="/content/campaigns" element={<ContentCampaigns />} />
             <Route path="/content/templates" element={<ContentTemplates />} />
+            {/* Launch Autopilot */}
+            <Route path="/autopilot" element={<LaunchAutopilot />} />
+            <Route path="/autopilot/new" element={<PlanWizard />} />
+            <Route path="/autopilot/plans/:planId" element={<PlanKanban />} />
+            <Route path="/autopilot/queue" element={<ContentQueue />} />
+            <Route path="/autopilot/preferences" element={<AutopilotPreferences />} />
+            <Route path="/autopilot/analytics" element={<AutopilotAnalytics />} />
           </Routes>
         </AppLayout>
       </BrowserRouter>
@@ -64,4 +78,3 @@ function App() {
 }
 
 export default App;
-

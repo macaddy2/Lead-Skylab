@@ -139,7 +139,7 @@ export default function Dashboard() {
         const sources = ['landing_page', 'referral', 'organic', 'social', 'paid_ad'];
         return sources.map((source, index) => ({
             name: source.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-            value: leads.filter(l => l.source === source).length || Math.floor(Math.random() * 30) + 10,
+            value: leads.filter(l => l.source === source).length || (15 + index * 5),
             fill: COLORS[index],
         }));
     }, [leads]);

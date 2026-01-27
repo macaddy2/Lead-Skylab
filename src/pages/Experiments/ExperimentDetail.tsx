@@ -101,9 +101,11 @@ export default function ExperimentDetail() {
                 <div className="card" style={{ padding: 'var(--space-5)' }}>
                     <p className="text-sm text-muted mb-1">Duration</p>
                     <p className="text-3xl font-bold">
-                        {experiment.startDate
-                            ? Math.ceil((new Date(experiment.endDate || Date.now()).getTime() - new Date(experiment.startDate).getTime()) / (1000 * 60 * 60 * 24))
-                            : 0} days
+                        {experiment.startDate && experiment.endDate
+                            ? Math.ceil((new Date(experiment.endDate).getTime() - new Date(experiment.startDate).getTime()) / (1000 * 60 * 60 * 24))
+                            : experiment.startDate
+                                ? 'Ongoing'
+                                : 0} {typeof experiment.startDate === 'string' && experiment.endDate ? 'days' : ''}
                     </p>
                 </div>
             </div>

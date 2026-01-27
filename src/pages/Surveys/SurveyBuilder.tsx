@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import type { Survey, SurveyQuestion } from '../../types';
@@ -80,12 +80,6 @@ export default function SurveyBuilder() {
 
     const [activeTab, setActiveTab] = useState<'questions' | 'settings' | 'preview'>('questions');
     const [isSaving, setIsSaving] = useState(false);
-
-    useEffect(() => {
-        if (existingSurvey) {
-            setSurvey(existingSurvey);
-        }
-    }, [existingSurvey]);
 
     const handleSave = () => {
         setIsSaving(true);

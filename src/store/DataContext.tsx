@@ -12,6 +12,7 @@ import type {
     PMFMetrics,
     Activity,
     ContentTemplate,
+    LaunchTemplate,
 } from '../types';
 
 // Initial PMF Metrics with demo data
@@ -457,6 +458,75 @@ const demoTemplates: ContentTemplate[] = [
     },
 ];
 
+// Demo launch templates
+const demoLaunchTemplates: LaunchTemplate[] = [
+    {
+        id: '1',
+        name: 'SaaS Product Launch',
+        description: 'Perfect for software products launching to market',
+        category: 'saas',
+        defaultPhases: [
+            { type: 'pre_launch', name: 'Pre-Launch', description: 'Build anticipation and waitlist', durationDays: 14, suggestedMilestones: ['Teaser campaign', 'Waitlist landing page', 'Influencer outreach'] },
+            { type: 'launch_day', name: 'Launch Day', description: 'Maximum visibility push', durationDays: 3, suggestedMilestones: ['Announcement posts', 'Email blast', 'PR release'] },
+            { type: 'growth', name: 'Growth Phase', description: 'Sustain momentum and convert', durationDays: 30, suggestedMilestones: ['User testimonials', 'Case studies', 'Feature highlights'] },
+        ],
+        defaultPreferences: { enabledPlatforms: ['twitter', 'linkedin', 'email'] },
+        estimatedDuration: 47,
+    },
+    {
+        id: '2',
+        name: 'Product Hunt Launch',
+        description: 'Optimized for Product Hunt launches with build-up strategy',
+        category: 'product_hunt',
+        defaultPhases: [
+            { type: 'pre_launch', name: 'Pre-Hunt', description: 'Build community before hunt', durationDays: 7, suggestedMilestones: ['Coming soon page', 'Hunter outreach', 'Community engagement'] },
+            { type: 'launch_day', name: 'Hunt Day', description: 'All-out push on PH', durationDays: 1, suggestedMilestones: ['Launch tweet', 'Community alerts', 'Respond to comments'] },
+            { type: 'growth', name: 'Post-Hunt', description: 'Capitalize on traffic', durationDays: 14, suggestedMilestones: ['Thank you campaign', 'Convert traffic', 'Badge display'] },
+        ],
+        defaultPreferences: { enabledPlatforms: ['twitter', 'linkedin'] },
+        estimatedDuration: 22,
+    },
+    {
+        id: '3',
+        name: 'Indie Hacker Build in Public',
+        description: 'Gradual launch with transparent journey sharing',
+        category: 'indie_hacker',
+        defaultPhases: [
+            { type: 'pre_launch', name: 'Build in Public', description: 'Share your journey', durationDays: 21, suggestedMilestones: ['Weekly updates', 'Behind the scenes', 'Problem validation'] },
+            { type: 'launch_day', name: 'Soft Launch', description: 'First users onboarded', durationDays: 7, suggestedMilestones: ['Beta invites', 'Feedback collection', 'Quick wins'] },
+            { type: 'growth', name: 'Scale', description: 'Grow based on learnings', durationDays: 30, suggestedMilestones: ['Feature iterations', 'User stories', 'Revenue milestones'] },
+        ],
+        defaultPreferences: { enabledPlatforms: ['twitter', 'reddit'] },
+        estimatedDuration: 58,
+    },
+    {
+        id: '4',
+        name: 'Enterprise B2B Launch',
+        description: 'Professional launch for B2B enterprise products',
+        category: 'enterprise',
+        defaultPhases: [
+            { type: 'pre_launch', name: 'Awareness', description: 'Educate the market', durationDays: 30, suggestedMilestones: ['Thought leadership', 'Webinar series', 'White papers'] },
+            { type: 'launch_day', name: 'Launch Event', description: 'Official announcement', durationDays: 7, suggestedMilestones: ['Press release', 'Demo videos', 'Partner announcements'] },
+            { type: 'growth', name: 'Pipeline Building', description: 'Generate qualified leads', durationDays: 60, suggestedMilestones: ['Case studies', 'ROI calculators', 'Enterprise demos'] },
+        ],
+        defaultPreferences: { enabledPlatforms: ['linkedin', 'email'] },
+        estimatedDuration: 97,
+    },
+    {
+        id: '5',
+        name: 'E-commerce Product Drop',
+        description: 'Create hype and urgency for product drops',
+        category: 'ecommerce',
+        defaultPhases: [
+            { type: 'pre_launch', name: 'Tease', description: 'Build anticipation', durationDays: 7, suggestedMilestones: ['Sneak peeks', 'Countdown', 'Early access signup'] },
+            { type: 'launch_day', name: 'Drop Day', description: 'Maximum urgency', durationDays: 1, suggestedMilestones: ['Launch announcement', 'Limited availability', 'Social proof'] },
+            { type: 'growth', name: 'Sustain', description: 'Keep momentum', durationDays: 14, suggestedMilestones: ['Customer photos', 'Reviews campaign', 'Restock alerts'] },
+        ],
+        defaultPreferences: { enabledPlatforms: ['instagram', 'tiktok', 'email'] },
+        estimatedDuration: 22,
+    },
+];
+
 // Initial state
 const initialState: AppState = {
     leads: demoLeads,
@@ -473,6 +543,10 @@ const initialState: AppState = {
     contentCampaigns: [],
     productProfile: null,
     contentTemplates: demoTemplates,
+    // Launch Autopilot
+    launchPlans: [],
+    contentQueue: [],
+    launchTemplates: demoLaunchTemplates,
 };
 
 // Reducer function
@@ -590,6 +664,57 @@ function appReducer(state: AppState, action: AppAction): AppState {
             };
         case 'SET_PRODUCT_PROFILE':
             return { ...state, productProfile: action.payload };
+        // Launch Autopilot actions
+        case 'ADD_LAUNCH_PLAN':
+            return { ...state, launchPlans: [...state.launchPlans, action.payload] };
+        case 'UPDATE_LAUNCH_PLAN':
+            return {
+                ...state,
+                launchPlans: state.launchPlans.map((p) =>
+                    p.id === action.payload.id ? action.payload : p
+                ),
+            };
+        case 'DELETE_LAUNCH_PLAN':
+            return {
+                ...state,
+                launchPlans: state.launchPlans.filter((p) => p.id !== action.payload),
+                contentQueue: state.contentQueue.filter((q) => q.planId !== action.payload),
+            };
+        case 'ADD_QUEUE_ITEM':
+            return { ...state, contentQueue: [...state.contentQueue, action.payload] };
+        case 'UPDATE_QUEUE_ITEM':
+            return {
+                ...state,
+                contentQueue: state.contentQueue.map((q) =>
+                    q.id === action.payload.id ? action.payload : q
+                ),
+            };
+        case 'DELETE_QUEUE_ITEM':
+            return {
+                ...state,
+                contentQueue: state.contentQueue.filter((q) => q.id !== action.payload),
+            };
+        case 'BULK_APPROVE_QUEUE':
+            return {
+                ...state,
+                contentQueue: state.contentQueue.map((q) =>
+                    action.payload.includes(q.id)
+                        ? { ...q, status: 'approved' as const, approvedAt: new Date().toISOString() }
+                        : q
+                ),
+            };
+        case 'MOVE_CONTENT_TO_PHASE':
+            return {
+                ...state,
+                contentQueue: state.contentQueue.map((q) =>
+                    q.id === action.payload.itemId
+                        ? {
+                            ...q,
+                            phaseId: action.payload.phaseType,
+                        }
+                        : q
+                ),
+            };
         default:
             return state;
     }
@@ -704,6 +829,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 }
 
 // Hook to use the context
+// eslint-disable-next-line react-refresh/only-export-components
 export function useData(): DataContextType {
     const context = useContext(DataContext);
     if (!context) {
