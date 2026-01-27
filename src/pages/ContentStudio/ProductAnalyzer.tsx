@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
+import { useAuth } from '../../store/AuthContext';
+import { productProfileApi } from '../../lib/api';
 import type { ProductProfile, ContentTone } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -35,6 +37,7 @@ const tones: { value: ContentTone; label: string; description: string }[] = [
 export default function ProductAnalyzer() {
     const navigate = useNavigate();
     const { state, dispatch } = useData();
+    const { user } = useAuth();
     const existingProfile = state.productProfile;
 
     const [formData, setFormData] = useState<Partial<ProductProfile>>({
@@ -49,6 +52,8 @@ export default function ProductAnalyzer() {
     });
     const [keywordInput, setKeywordInput] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [analyzed, setAnalyzed] = useState(!!existingProfile);
 
     const handleValuePropChange = (index: number, value: string) => {
@@ -111,7 +116,15 @@ export default function ProductAnalyzer() {
         }, 2000);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!user) {
+            setSaveError('You must be logged in to save');
+            return;
+        }
+
+        setIsSaving(true);
+        setSaveError(null);
+
         const profile: ProductProfile = {
             id: existingProfile?.id || uuidv4(),
             name: formData.name || '',
@@ -126,8 +139,29 @@ export default function ProductAnalyzer() {
             updatedAt: new Date().toISOString(),
         };
 
-        dispatch({ type: 'SET_PRODUCT_PROFILE', payload: profile });
-        navigate('/content');
+        try {
+            // Save to Supabase
+            await productProfileApi.upsert({
+                user_id: user.id,
+                name: profile.name,
+                url: profile.url || null,
+                description: profile.description,
+                value_props: profile.valueProps,
+                target_audience: profile.targetAudience,
+                keywords: profile.keywords,
+                tone: profile.tone,
+                competitors: profile.competitors,
+            });
+
+            // Also update local state for immediate feedback
+            dispatch({ type: 'SET_PRODUCT_PROFILE', payload: profile });
+            navigate('/content');
+        } catch (err) {
+            console.error('Failed to save profile:', err);
+            setSaveError(err instanceof Error ? err.message : 'Failed to save profile');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -145,10 +179,29 @@ export default function ProductAnalyzer() {
                         <p className="text-muted">Configure your product profile for AI content generation</p>
                     </div>
                 </div>
-                <button className="btn btn-primary" onClick={handleSave}>
-                    {icons.check} Save Profile
+                <button className="btn btn-primary" onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? 'Saving...' : <>{icons.check} Save Profile</>}
                 </button>
             </div>
+
+            {/* Error Alert */}
+            {saveError && (
+                <div style={{
+                    padding: 'var(--space-4)',
+                    marginBottom: 'var(--space-4)',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: '#f87171',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                }}>
+                    <span>⚠️</span>
+                    {saveError}
+                </div>
+            )}
+
 
             <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
                 {/* Left Column - Product Details */}

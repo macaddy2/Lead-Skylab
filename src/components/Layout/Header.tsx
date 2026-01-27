@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useData } from '../../store/DataContext';
+import { useAuth } from '../../store/AuthContext';
 
 const icons = {
     search: (
@@ -21,11 +22,20 @@ const icons = {
             <path d="M12 17h.01" />
         </svg>
     ),
+    logout: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+    ),
 };
 
 export default function Header() {
     const { state } = useData();
+    const { user, signOut } = useAuth();
     const [searchFocused, setSearchFocused] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
 
     const unreadNotifications = state.notifications.filter(n => !n.read).length;
 
@@ -216,43 +226,135 @@ export default function Header() {
                     )}
                 </button>
 
-                {/* User Avatar */}
-                <button
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--space-3)',
-                        padding: 'var(--space-2)',
-                        background: 'transparent',
-                        border: 'none',
-                        borderRadius: 'var(--radius-lg)',
-                        cursor: 'pointer',
-                        transition: 'all var(--transition-fast)',
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--glass-bg)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                    }}
-                >
-                    <div
+                {/* User Avatar with Dropdown */}
+                <div style={{ position: 'relative' }}>
+                    <button
+                        onClick={() => setUserMenuOpen(!userMenuOpen)}
                         style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: 'var(--radius-full)',
-                            background: 'var(--gradient-secondary)',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 'var(--font-size-sm)',
-                            fontWeight: 'var(--font-weight-semibold)',
-                            color: 'white',
+                            gap: 'var(--space-3)',
+                            padding: 'var(--space-2)',
+                            background: userMenuOpen ? 'var(--glass-bg)' : 'transparent',
+                            border: 'none',
+                            borderRadius: 'var(--radius-lg)',
+                            cursor: 'pointer',
+                            transition: 'all var(--transition-fast)',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'var(--glass-bg)';
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!userMenuOpen) {
+                                e.currentTarget.style.background = 'transparent';
+                            }
                         }}
                     >
-                        U
-                    </div>
-                </button>
+                        <div
+                            style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: 'var(--radius-full)',
+                                background: 'var(--gradient-secondary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 'var(--font-size-sm)',
+                                fontWeight: 'var(--font-weight-semibold)',
+                                color: 'white',
+                            }}
+                        >
+                            {user?.email?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {userMenuOpen && (
+                        <>
+                            {/* Backdrop */}
+                            <div 
+                                onClick={() => setUserMenuOpen(false)}
+                                style={{
+                                    position: 'fixed',
+                                    inset: 0,
+                                    zIndex: 10,
+                                }}
+                            />
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 'calc(100% + 8px)',
+                                    right: 0,
+                                    width: '240px',
+                                    background: 'var(--color-bg-elevated)',
+                                    border: '1px solid var(--glass-border)',
+                                    borderRadius: 'var(--radius-lg)',
+                                    boxShadow: 'var(--shadow-lg)',
+                                    zIndex: 20,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                {/* User Info */}
+                                <div
+                                    style={{
+                                        padding: 'var(--space-4)',
+                                        borderBottom: '1px solid var(--glass-border)',
+                                    }}
+                                >
+                                    <p style={{ 
+                                        margin: 0, 
+                                        fontSize: 'var(--font-size-sm)', 
+                                        fontWeight: 'var(--font-weight-medium)',
+                                        color: 'var(--color-text-primary)',
+                                    }}>
+                                        {user?.email}
+                                    </p>
+                                    <p style={{ 
+                                        margin: 'var(--space-1) 0 0', 
+                                        fontSize: 'var(--font-size-xs)', 
+                                        color: 'var(--color-text-muted)',
+                                    }}>
+                                        Signed in
+                                    </p>
+                                </div>
+
+                                {/* Menu Items */}
+                                <div style={{ padding: 'var(--space-2)' }}>
+                                    <button
+                                        onClick={async () => {
+                                            setUserMenuOpen(false);
+                                            await signOut();
+                                        }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 'var(--space-3)',
+                                            width: '100%',
+                                            padding: 'var(--space-3) var(--space-3)',
+                                            background: 'transparent',
+                                            border: 'none',
+                                            borderRadius: 'var(--radius-md)',
+                                            color: 'var(--color-error)',
+                                            fontSize: 'var(--font-size-sm)',
+                                            cursor: 'pointer',
+                                            transition: 'all var(--transition-fast)',
+                                            textAlign: 'left',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'transparent';
+                                        }}
+                                    >
+                                        {icons.logout}
+                                        Sign Out
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </header>
     );
