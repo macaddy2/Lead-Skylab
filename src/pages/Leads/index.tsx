@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
+import { useToast } from '../../components/ui/Toast';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import type { Lead, LeadStage, LeadSource } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -84,6 +86,7 @@ const sourceLabels: Record<LeadSource, string> = {
 
 export default function Leads() {
     const { state, dispatch, calculateLeadScore } = useData();
+    const { addToast } = useToast();
     const { leads } = state;
 
     const [search, setSearch] = useState('');
@@ -91,6 +94,7 @@ export default function Leads() {
     const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'single' | 'bulk'; id?: string } | null>(null);
 
     // New lead form state
     const [newLead, setNewLead] = useState({
@@ -130,21 +134,29 @@ export default function Leads() {
         };
 
         dispatch({ type: 'ADD_LEAD', payload: lead });
+        addToast('success', `${lead.name} added to pipeline`);
         setShowAddModal(false);
         setNewLead({ email: '', name: '', company: '', source: 'landing_page' });
     };
 
     const handleDeleteLead = (id: string) => {
-        if (window.confirm('Are you sure you want to delete this lead?')) {
-            dispatch({ type: 'DELETE_LEAD', payload: id });
-        }
+        setDeleteConfirm({ type: 'single', id });
     };
 
     const handleBulkDelete = () => {
-        if (window.confirm(`Delete ${selectedLeads.length} leads?`)) {
+        setDeleteConfirm({ type: 'bulk' });
+    };
+
+    const confirmDelete = () => {
+        if (deleteConfirm?.type === 'single' && deleteConfirm.id) {
+            dispatch({ type: 'DELETE_LEAD', payload: deleteConfirm.id });
+            addToast('success', 'Lead deleted');
+        } else if (deleteConfirm?.type === 'bulk') {
             selectedLeads.forEach((id) => dispatch({ type: 'DELETE_LEAD', payload: id }));
+            addToast('success', `${selectedLeads.length} leads deleted`);
             setSelectedLeads([]);
         }
+        setDeleteConfirm(null);
     };
 
     const handleExport = () => {
@@ -413,6 +425,21 @@ export default function Leads() {
                     </p>
                 </div>
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={!!deleteConfirm}
+                title={deleteConfirm?.type === 'bulk' ? 'Delete Multiple Leads' : 'Delete Lead'}
+                message={
+                    deleteConfirm?.type === 'bulk'
+                        ? `Are you sure you want to delete ${selectedLeads.length} leads? This action cannot be undone.`
+                        : 'Are you sure you want to delete this lead? This action cannot be undone.'
+                }
+                confirmLabel="Delete"
+                destructive
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteConfirm(null)}
+            />
 
             {/* Add Lead Modal */}
             {showAddModal && (

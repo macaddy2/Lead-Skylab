@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useData } from '../../store/DataContext';
 import { useAuth } from '../../store/AuthContext';
 
@@ -29,18 +29,41 @@ const icons = {
             <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
     ),
+    menu: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+    ),
 };
 
-export default function Header() {
+interface HeaderProps {
+    onSearchClick?: () => void;
+    onMenuClick?: () => void;
+}
+
+export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
     const { state } = useData();
     const { user, signOut } = useAuth();
-    const [searchFocused, setSearchFocused] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const unreadNotifications = state.notifications.filter(n => !n.read).length;
 
+    // Close user menu on Escape
+    useEffect(() => {
+        if (!userMenuOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setUserMenuOpen(false);
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [userMenuOpen]);
+
     return (
         <header
+            role="banner"
             style={{
                 position: 'fixed',
                 top: 0,
@@ -58,50 +81,62 @@ export default function Header() {
                 transition: 'left var(--transition-slow)',
             }}
         >
-            {/* Search */}
-            <div
+            {/* Mobile menu button */}
+            {onMenuClick && (
+                <button
+                    className="mobile-menu-btn"
+                    onClick={onMenuClick}
+                    aria-label="Open navigation menu"
+                    style={{
+                        display: 'none',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '36px',
+                        height: '36px',
+                        background: 'transparent',
+                        border: 'none',
+                        borderRadius: 'var(--radius-lg)',
+                        color: 'var(--color-text-muted)',
+                        cursor: 'pointer',
+                        marginRight: 'var(--space-3)',
+                    }}
+                >
+                    {icons.menu}
+                </button>
+            )}
+
+            {/* Search - now triggers Command Palette */}
+            <button
+                onClick={onSearchClick}
+                aria-label="Search leads, pages, experiments (Cmd+K)"
                 style={{
                     position: 'relative',
                     width: '100%',
                     maxWidth: '400px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-3)',
+                    padding: 'var(--space-3) var(--space-4)',
+                    background: 'var(--color-bg-tertiary)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--color-text-muted)',
+                    fontSize: 'var(--font-size-sm)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all var(--transition-fast)',
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--glass-border)';
                 }}
             >
-                <span
-                    style={{
-                        position: 'absolute',
-                        left: 'var(--space-4)',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: searchFocused ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                        transition: 'color var(--transition-fast)',
-                        display: 'flex',
-                    }}
-                >
-                    {icons.search}
-                </span>
-                <input
-                    type="text"
-                    placeholder="Search leads, pages, experiments..."
-                    onFocus={() => setSearchFocused(true)}
-                    onBlur={() => setSearchFocused(false)}
-                    style={{
-                        width: '100%',
-                        padding: 'var(--space-3) var(--space-4) var(--space-3) var(--space-12)',
-                        background: 'var(--color-bg-tertiary)',
-                        border: `1px solid ${searchFocused ? 'var(--color-primary)' : 'var(--glass-border)'}`,
-                        borderRadius: 'var(--radius-lg)',
-                        color: 'var(--color-text-primary)',
-                        fontSize: 'var(--font-size-sm)',
-                        outline: 'none',
-                        transition: 'all var(--transition-fast)',
-                    }}
-                />
+                {icons.search}
+                <span style={{ flex: 1 }}>Search leads, pages, experiments...</span>
                 <kbd
                     style={{
-                        position: 'absolute',
-                        right: 'var(--space-3)',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
                         padding: 'var(--space-1) var(--space-2)',
                         background: 'var(--color-bg-elevated)',
                         border: '1px solid var(--glass-border)',
@@ -113,12 +148,15 @@ export default function Header() {
                 >
                     ⌘K
                 </kbd>
-            </div>
+            </button>
 
             {/* Right Section */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                 {/* PMF Score Badge */}
                 <div
+                    className="pmf-badge"
+                    role="status"
+                    aria-label={`PMF Score: ${state.metrics.overallScore}`}
                     style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -152,6 +190,7 @@ export default function Header() {
 
                 {/* Help Button */}
                 <button
+                    aria-label="Help"
                     style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -179,6 +218,7 @@ export default function Header() {
 
                 {/* Notifications Button */}
                 <button
+                    aria-label={`Notifications${unreadNotifications > 0 ? ` (${unreadNotifications} unread)` : ''}`}
                     style={{
                         position: 'relative',
                         display: 'flex',
@@ -205,6 +245,7 @@ export default function Header() {
                     {icons.bell}
                     {unreadNotifications > 0 && (
                         <span
+                            aria-hidden="true"
                             style={{
                                 position: 'absolute',
                                 top: '4px',
@@ -227,9 +268,12 @@ export default function Header() {
                 </button>
 
                 {/* User Avatar with Dropdown */}
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }} ref={menuRef}>
                     <button
                         onClick={() => setUserMenuOpen(!userMenuOpen)}
+                        aria-label="User menu"
+                        aria-haspopup="true"
+                        aria-expanded={userMenuOpen}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -271,16 +315,13 @@ export default function Header() {
                     {/* Dropdown Menu */}
                     {userMenuOpen && (
                         <>
-                            {/* Backdrop */}
-                            <div 
+                            <div
                                 onClick={() => setUserMenuOpen(false)}
-                                style={{
-                                    position: 'fixed',
-                                    inset: 0,
-                                    zIndex: 10,
-                                }}
+                                style={{ position: 'fixed', inset: 0, zIndex: 10 }}
                             />
                             <div
+                                role="menu"
+                                aria-label="User options"
                                 style={{
                                     position: 'absolute',
                                     top: 'calc(100% + 8px)',
@@ -294,33 +335,31 @@ export default function Header() {
                                     overflow: 'hidden',
                                 }}
                             >
-                                {/* User Info */}
                                 <div
                                     style={{
                                         padding: 'var(--space-4)',
                                         borderBottom: '1px solid var(--glass-border)',
                                     }}
                                 >
-                                    <p style={{ 
-                                        margin: 0, 
-                                        fontSize: 'var(--font-size-sm)', 
+                                    <p style={{
+                                        margin: 0,
+                                        fontSize: 'var(--font-size-sm)',
                                         fontWeight: 'var(--font-weight-medium)',
                                         color: 'var(--color-text-primary)',
                                     }}>
                                         {user?.email}
                                     </p>
-                                    <p style={{ 
-                                        margin: 'var(--space-1) 0 0', 
-                                        fontSize: 'var(--font-size-xs)', 
+                                    <p style={{
+                                        margin: 'var(--space-1) 0 0',
+                                        fontSize: 'var(--font-size-xs)',
                                         color: 'var(--color-text-muted)',
                                     }}>
                                         Signed in
                                     </p>
                                 </div>
-
-                                {/* Menu Items */}
                                 <div style={{ padding: 'var(--space-2)' }}>
                                     <button
+                                        role="menuitem"
                                         onClick={async () => {
                                             setUserMenuOpen(false);
                                             await signOut();

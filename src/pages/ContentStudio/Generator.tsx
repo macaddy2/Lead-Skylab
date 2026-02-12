@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
+import { useToast } from '../../components/ui/Toast';
+import { generateContent, generateHashtags, isAIConfigured } from '../../lib/gemini';
 import type { ContentPiece, ContentPlatform, ContentTone } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -44,9 +46,33 @@ const platforms: { value: ContentPlatform; label: string; charLimit?: number }[]
 
 const tones: ContentTone[] = ['professional', 'casual', 'bold', 'friendly', 'witty'];
 
+// Template-based fallback when Gemini API is not configured
+function generateFallbackContent(
+    platform: ContentPlatform,
+    productProfile: { name: string; description: string; valueProps: string[]; url?: string; keywords: string[]; targetAudience: string } | null,
+    templateExample: string | undefined
+): string {
+    if (templateExample) return templateExample;
+    if (!productProfile) {
+        return `Check out our new product!\n\nWe're solving [problem] for [audience].\n\nKey benefits:\n- Benefit 1\n- Benefit 2\n- Benefit 3\n\nLearn more: [link]`;
+    }
+
+    const prompts: Record<ContentPlatform, string> = {
+        twitter: `${productProfile.name} is here!\n\n${productProfile.valueProps[0] || 'Solve your problems faster.'}\n\nTry it today: ${productProfile.url || 'link in bio'}\n\n${productProfile.keywords.slice(0, 3).map(k => `#${k}`).join(' ')}`,
+        linkedin: `I'm excited to share ${productProfile.name}.\n\n${productProfile.description}\n\nHere's what makes it different:\n\n${productProfile.valueProps.map((v, i) => `${i + 1}. ${v}`).join('\n')}\n\nWho else is solving this problem? Let me know in the comments.`,
+        instagram: `${productProfile.name}\n\n${productProfile.description}\n\nKey benefits:\n${productProfile.valueProps.map(v => `- ${v}`).join('\n')}\n\nLink in bio!`,
+        tiktok: `POV: You just discovered ${productProfile.name}\n\n${productProfile.valueProps[0] || 'And it changes everything.'}\n\n#${productProfile.keywords.join(' #')}`,
+        reddit: `[Discussion] We built ${productProfile.name} - ${productProfile.description}\n\nWe're targeting ${productProfile.targetAudience}.\n\nWould love to get feedback from this community. What features would you want to see?`,
+        facebook: `Introducing ${productProfile.name}!\n\n${productProfile.description}\n\nWhy we built this:\n${productProfile.valueProps.map(v => `- ${v}`).join('\n')}\n\nCheck it out: ${productProfile.url || 'link below'}`,
+        email: `Subject: Introducing ${productProfile.name}\n\nHi [Name],\n\n${productProfile.description}\n\nHere's what you'll get:\n${productProfile.valueProps.map(v => `- ${v}`).join('\n')}\n\nClick here to get started: ${productProfile.url || '[link]'}\n\nBest,\n[Your name]`,
+    };
+    return prompts[platform];
+}
+
 export default function Generator() {
     const navigate = useNavigate();
     const { state, dispatch } = useData();
+    const { addToast } = useToast();
     const { productProfile, contentTemplates } = state;
 
     const [platform, setPlatform] = useState<ContentPlatform>('twitter');
@@ -65,40 +91,61 @@ export default function Generator() {
     const currentPlatform = platforms.find(p => p.value === platform);
     const charCount = content.length;
     const isOverLimit = currentPlatform?.charLimit ? charCount > currentPlatform.charLimit : false;
+    const aiAvailable = isAIConfigured();
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         setIsGenerating(true);
 
-        // Simulate AI generation
-        setTimeout(() => {
-            const template = contentTemplates.find(t => t.id === selectedTemplate);
-            let generatedContent = '';
+        // If Gemini is configured and we have a product profile, use real AI
+        if (aiAvailable && productProfile) {
+            try {
+                const generatedContent = await generateContent({
+                    productProfile,
+                    platform,
+                    tone,
+                    includeHashtags: true,
+                });
+                setContent(generatedContent);
+                setTitle(generatedContent.slice(0, 50) + '...');
+                addToast('success', 'Content generated with AI');
 
-            if (template) {
-                generatedContent = template.example;
-            } else if (productProfile) {
-                // Generate based on product profile
-                const prompts: Record<ContentPlatform, string> = {
-                    twitter: `🚀 ${productProfile.name} is here!\n\n${productProfile.valueProps[0] || 'Solve your problems faster.'}\n\nTry it today 👉 ${productProfile.url || 'link in bio'}\n\n${productProfile.keywords.slice(0, 3).map(k => `#${k}`).join(' ')}`,
-                    linkedin: `I'm excited to share ${productProfile.name}.\n\n${productProfile.description}\n\nHere's what makes it different:\n\n${productProfile.valueProps.map((v, i) => `${i + 1}. ${v}`).join('\n')}\n\nWho else is solving this problem? Let me know in the comments.`,
-                    instagram: `✨ ${productProfile.name} ✨\n\n${productProfile.description}\n\n🔥 Key benefits:\n${productProfile.valueProps.map(v => `• ${v}`).join('\n')}\n\nLink in bio! 👆`,
-                    tiktok: `POV: You just discovered ${productProfile.name}\n\n${productProfile.valueProps[0] || 'And it changes everything.'}\n\n#${productProfile.keywords.join(' #')}`,
-                    reddit: `[Discussion] We built ${productProfile.name} - ${productProfile.description}\n\nWe're targeting ${productProfile.targetAudience}.\n\nWould love to get feedback from this community. What features would you want to see?\n\nAMA below! 👇`,
-                    facebook: `🎉 Introducing ${productProfile.name}!\n\n${productProfile.description}\n\nWhy we built this:\n${productProfile.valueProps.map(v => `✅ ${v}`).join('\n')}\n\nCheck it out: ${productProfile.url || 'link below'}`,
-                    email: `Subject: Introducing ${productProfile.name}\n\nHi [Name],\n\n${productProfile.description}\n\nHere's what you'll get:\n${productProfile.valueProps.map(v => `• ${v}`).join('\n')}\n\nClick here to get started: ${productProfile.url || '[link]'}\n\nBest,\n[Your name]`,
-                };
-                generatedContent = prompts[platform];
-            } else {
-                generatedContent = `🚀 Check out our new product!\n\nWe're solving [problem] for [audience].\n\nKey benefits:\n• Benefit 1\n• Benefit 2\n• Benefit 3\n\nLearn more: [link]`;
+                // Auto-generate hashtags
+                try {
+                    const tags = await generateHashtags(generatedContent, productProfile, platform, 5);
+                    setHashtags(tags.map(t => t.replace('#', '')));
+                } catch {
+                    // Hashtag generation is non-critical, silent fail
+                }
+            } catch (err) {
+                const errorMsg = err instanceof Error ? err.message : 'AI generation failed';
+                addToast('error', errorMsg);
+                // Fall back to templates
+                const template = contentTemplates.find(t => t.id === selectedTemplate);
+                const fallback = generateFallbackContent(platform, productProfile, template?.example);
+                setContent(fallback);
+                setTitle(fallback.slice(0, 50) + '...');
             }
+        } else {
+            // Fallback to template-based generation
+            const template = contentTemplates.find(t => t.id === selectedTemplate);
+            const fallback = generateFallbackContent(platform, productProfile, template?.example);
+            setContent(fallback);
+            setTitle(fallback.slice(0, 50) + '...');
 
-            setContent(generatedContent);
-            setTitle(generatedContent.slice(0, 50) + '...');
-            setIsGenerating(false);
-        }, 1500);
+            if (!aiAvailable) {
+                addToast('info', 'Using templates. Add VITE_GEMINI_API_KEY for AI generation.');
+            }
+        }
+
+        setIsGenerating(false);
     };
 
     const handleSave = (status: ContentPiece['status'] = 'draft') => {
+        if (!content.trim()) {
+            addToast('warning', 'Generate or write some content first');
+            return;
+        }
+
         const newContent: ContentPiece = {
             id: uuidv4(),
             title: title || content.slice(0, 50),
@@ -113,6 +160,7 @@ export default function Generator() {
         };
 
         dispatch({ type: 'ADD_CONTENT', payload: newContent });
+        addToast('success', `Content saved as ${status}`);
         navigate('/content');
     };
 
@@ -130,6 +178,7 @@ export default function Generator() {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(content);
+        addToast('success', 'Copied to clipboard');
     };
 
     return (
@@ -137,14 +186,16 @@ export default function Generator() {
             {/* Header */}
             <div className="page-header">
                 <div className="flex items-center gap-4">
-                    <button className="btn btn-ghost btn-icon" onClick={() => navigate('/content')}>
+                    <button className="btn btn-ghost btn-icon" onClick={() => navigate('/content')} aria-label="Back to Content Studio">
                         {icons.back}
                     </button>
                     <div>
                         <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)' }}>
                             Content Generator
                         </h1>
-                        <p className="text-muted">Create AI-powered marketing content</p>
+                        <p className="text-muted">
+                            {aiAvailable ? 'Create AI-powered marketing content' : 'Create marketing content from templates'}
+                        </p>
                     </div>
                 </div>
                 <div className="flex gap-3">
@@ -169,6 +220,7 @@ export default function Generator() {
                                     key={p.value}
                                     className={`btn btn-sm ${platform === p.value ? 'btn-primary' : 'btn-ghost'}`}
                                     onClick={() => setPlatform(p.value)}
+                                    aria-pressed={platform === p.value}
                                 >
                                     {p.label}
                                     {p.charLimit && (
@@ -188,6 +240,7 @@ export default function Generator() {
                                     key={t}
                                     className={`btn btn-sm ${tone === t ? 'btn-primary' : 'btn-ghost'}`}
                                     onClick={() => setTone(t)}
+                                    aria-pressed={tone === t}
                                     style={{ textTransform: 'capitalize' }}
                                 >
                                     {t}
@@ -207,6 +260,7 @@ export default function Generator() {
                                     className={`btn btn-sm ${!selectedTemplate ? 'btn-primary' : 'btn-ghost'}`}
                                     onClick={() => setSelectedTemplate(null)}
                                     style={{ justifyContent: 'flex-start' }}
+                                    aria-pressed={!selectedTemplate}
                                 >
                                     Custom (no template)
                                 </button>
@@ -216,6 +270,7 @@ export default function Generator() {
                                         className={`btn btn-sm ${selectedTemplate === template.id ? 'btn-primary' : 'btn-ghost'}`}
                                         onClick={() => setSelectedTemplate(template.id)}
                                         style={{ justifyContent: 'flex-start' }}
+                                        aria-pressed={selectedTemplate === template.id}
                                     >
                                         {template.name}
                                     </button>
@@ -236,7 +291,9 @@ export default function Generator() {
                         ) : (
                             <>
                                 {icons.sparkle}
-                                <span className="ml-2">Generate Content</span>
+                                <span className="ml-2">
+                                    {aiAvailable ? 'Generate with AI' : 'Generate from Template'}
+                                </span>
                             </>
                         )}
                     </button>
@@ -251,7 +308,23 @@ export default function Generator() {
                             }}
                         >
                             <p className="text-sm">
-                                💡 Set up your <a href="/content/analyze" style={{ color: 'var(--color-primary)' }}>Product Profile</a> for better AI-generated content
+                                Set up your <a href="/content/analyze" style={{ color: 'var(--color-primary)' }}>Product Profile</a> for {aiAvailable ? 'better AI-generated' : 'personalized'} content
+                            </p>
+                        </div>
+                    )}
+
+                    {!aiAvailable && (
+                        <div
+                            className="card"
+                            role="alert"
+                            style={{
+                                padding: 'var(--space-4)',
+                                background: 'rgba(99, 102, 241, 0.08)',
+                                borderColor: 'rgba(99, 102, 241, 0.2)',
+                            }}
+                        >
+                            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                                <strong>AI not configured.</strong> Add <code style={{ fontSize: '0.85em', padding: '1px 4px', background: 'var(--color-bg-tertiary)', borderRadius: '3px' }}>VITE_GEMINI_API_KEY</code> to your <code style={{ fontSize: '0.85em', padding: '1px 4px', background: 'var(--color-bg-tertiary)', borderRadius: '3px' }}>.env</code> file for AI-powered content generation.
                             </p>
                         </div>
                     )}
@@ -261,8 +334,9 @@ export default function Generator() {
                 <div className="flex flex-col gap-6">
                     {/* Title */}
                     <div className="card" style={{ padding: 'var(--space-6)' }}>
-                        <h3 className="font-semibold mb-4">Title</h3>
+                        <label htmlFor="content-title" className="font-semibold mb-4" style={{ display: 'block' }}>Title</label>
                         <input
+                            id="content-title"
                             type="text"
                             className="input"
                             placeholder="Give your content a title..."
@@ -274,13 +348,14 @@ export default function Generator() {
                     {/* Content Editor */}
                     <div className="card" style={{ padding: 'var(--space-6)', flex: 1 }}>
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold">Content</h3>
+                            <label htmlFor="content-editor" className="font-semibold">Content</label>
                             <div className="flex items-center gap-2">
-                                <button className="btn btn-ghost btn-sm" onClick={copyToClipboard}>
+                                <button className="btn btn-ghost btn-sm" onClick={copyToClipboard} aria-label="Copy content to clipboard">
                                     {icons.copy} Copy
                                 </button>
                                 <span
                                     className={`text-sm ${isOverLimit ? 'text-error' : 'text-muted'}`}
+                                    aria-live="polite"
                                 >
                                     {charCount}
                                     {currentPlatform?.charLimit && ` / ${currentPlatform.charLimit}`}
@@ -288,11 +363,13 @@ export default function Generator() {
                             </div>
                         </div>
                         <textarea
+                            id="content-editor"
                             className="input"
                             rows={12}
                             placeholder="Your content will appear here after generation, or type your own..."
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
+                            aria-invalid={isOverLimit}
                             style={{
                                 fontFamily: 'inherit',
                                 resize: 'vertical',
@@ -313,20 +390,22 @@ export default function Generator() {
                                 value={hashtagInput}
                                 onChange={(e) => setHashtagInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && addHashtag()}
+                                aria-label="Add hashtag"
                             />
                             <button className="btn btn-secondary" onClick={addHashtag}>
                                 Add
                             </button>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2" role="list" aria-label="Selected hashtags">
                             {hashtags.map((tag) => (
-                                <span key={tag} className="badge badge-primary">
+                                <span key={tag} className="badge badge-primary" role="listitem">
                                     #{tag}
                                     <button
                                         onClick={() => removeHashtag(tag)}
-                                        style={{ marginLeft: 4, background: 'none', border: 'none', cursor: 'pointer' }}
+                                        aria-label={`Remove #${tag}`}
+                                        style={{ marginLeft: 4, background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
                                     >
-                                        ×
+                                        x
                                     </button>
                                 </span>
                             ))}

@@ -174,16 +174,18 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation */}
-            <nav style={{ flex: 1, padding: 'var(--space-4)', overflowY: 'auto' }}>
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+            <nav aria-label="Main navigation" style={{ flex: 1, padding: 'var(--space-4)', overflowY: 'auto' }}>
+                <ul role="menubar" aria-orientation="vertical" style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                     {navItems.map((item) => {
                         const isActive = location.pathname === item.path ||
                             (item.path !== '/' && location.pathname.startsWith(item.path));
 
                         return (
-                            <li key={item.path}>
+                            <li key={item.path} role="none">
                                 <NavLink
                                     to={item.path}
+                                    role="menuitem"
+                                    aria-current={isActive ? 'page' : undefined}
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -279,6 +281,8 @@ export default function Sidebar() {
                 {/* Collapse Toggle */}
                 <button
                     onClick={() => setCollapsed(!collapsed)}
+                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    aria-expanded={!collapsed}
                     style={{
                         display: 'flex',
                         alignItems: 'center',
