@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
-import type { LandingPage, HeroContent, FormContent, FormField } from '../../types';
+import { useToast } from '../../components/ui/Toast';
+import type { LandingPage, Lead, HeroContent, FormContent, FormField } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
 const icons = {
@@ -58,7 +59,8 @@ const defaultFormContent: FormContent = {
 export default function LandingPageEditor() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { state, dispatch } = useData();
+    const { state, dispatch, calculateLeadScore } = useData();
+    const { addToast } = useToast();
 
     const existingPage = id ? state.landingPages.find((p) => p.id === id) : null;
 
@@ -103,6 +105,8 @@ export default function LandingPageEditor() {
 
     const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'preview'>('content');
     const [isSaving, setIsSaving] = useState(false);
+    const [previewFormData, setPreviewFormData] = useState<Record<string, string>>({});
+    const [previewFormSubmitted, setPreviewFormSubmitted] = useState(false);
 
     const handleSave = () => {
         setIsSaving(true);
@@ -181,6 +185,68 @@ export default function LandingPageEditor() {
                 f.id === fieldId ? { ...f, ...updates } : f
             ),
         });
+    };
+
+    const handlePreviewFormSubmit = () => {
+        const fc = getFormContent();
+        // Check required fields
+        for (const field of fc.fields) {
+            if (field.required && !previewFormData[field.id]?.trim()) {
+                addToast('error', `${field.label} is required`);
+                return;
+            }
+        }
+
+        // Extract email and name from form data
+        const emailField = fc.fields.find(f => f.type === 'email');
+        const nameField = fc.fields.find(f => f.type === 'text' && f.label.toLowerCase().includes('name'));
+        const phoneField = fc.fields.find(f => f.type === 'phone');
+
+        const email = emailField ? previewFormData[emailField.id] || '' : '';
+        const name = nameField ? previewFormData[nameField.id] || '' : email.split('@')[0] || 'Unknown';
+
+        if (!email) {
+            addToast('error', 'An email field is required to create a lead');
+            return;
+        }
+
+        const lead: Lead = {
+            id: uuidv4(),
+            email,
+            name,
+            phone: phoneField ? previewFormData[phoneField.id] : undefined,
+            source: 'landing_page',
+            stage: 'new',
+            score: calculateLeadScore({ email, name, stage: 'new', tags: [] }),
+            tags: ['landing-page-lead'],
+            notes: `Submitted via landing page "${page.title}"`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastActivityAt: new Date().toISOString(),
+            customFields: Object.fromEntries(
+                fc.fields
+                    .filter(f => previewFormData[f.id])
+                    .map(f => [f.label, previewFormData[f.id]])
+            ),
+        };
+
+        dispatch({ type: 'ADD_LEAD', payload: lead });
+
+        // Update landing page analytics
+        setPage(prev => ({
+            ...prev,
+            analytics: {
+                ...prev.analytics,
+                formSubmissions: prev.analytics.formSubmissions + 1,
+            },
+        }));
+
+        setPreviewFormSubmitted(true);
+        setPreviewFormData({});
+        addToast('success', `Lead "${name}" created from form submission`);
+
+        // Reset after 3 seconds
+        setTimeout(() => setPreviewFormSubmitted(false), 3000);
     };
 
     const heroContent = getHeroContent();
@@ -531,64 +597,81 @@ export default function LandingPageEditor() {
                             margin: '0 auto',
                         }}
                     >
-                        <h2 style={{ fontSize: '1.75rem', fontWeight: '700', textAlign: 'center', marginBottom: 'var(--space-2)', color: '#1a1a2e' }}>
-                            {formContent.title}
-                        </h2>
-                        {formContent.subtitle && (
-                            <p style={{ textAlign: 'center', color: '#666', marginBottom: 'var(--space-6)' }}>
-                                {formContent.subtitle}
-                            </p>
-                        )}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                            {formContent.fields.map((field) => (
-                                <div key={field.id}>
-                                    <label style={{ display: 'block', marginBottom: 'var(--space-1)', fontWeight: '500', color: '#333' }}>
-                                        {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
-                                    </label>
-                                    {field.type === 'textarea' ? (
-                                        <textarea
-                                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                                            style={{
-                                                width: '100%',
-                                                padding: 'var(--space-3)',
-                                                border: '1px solid #ddd',
-                                                borderRadius: 'var(--radius-md)',
-                                                fontSize: '1rem',
-                                                minHeight: '100px',
-                                            }}
-                                        />
-                                    ) : (
-                                        <input
-                                            type={field.type}
-                                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                                            style={{
-                                                width: '100%',
-                                                padding: 'var(--space-3)',
-                                                border: '1px solid #ddd',
-                                                borderRadius: 'var(--radius-md)',
-                                                fontSize: '1rem',
-                                            }}
-                                        />
-                                    )}
+                        {previewFormSubmitted ? (
+                            <div style={{ textAlign: 'center', padding: 'var(--space-8) 0' }}>
+                                <div style={{ fontSize: '3rem', marginBottom: '16px' }}>&#10003;</div>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a2e', marginBottom: '8px' }}>
+                                    {formContent.successMessage}
+                                </h2>
+                                <p style={{ color: '#666', fontSize: '0.9rem' }}>Lead has been added to your pipeline.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 style={{ fontSize: '1.75rem', fontWeight: '700', textAlign: 'center', marginBottom: 'var(--space-2)', color: '#1a1a2e' }}>
+                                    {formContent.title}
+                                </h2>
+                                {formContent.subtitle && (
+                                    <p style={{ textAlign: 'center', color: '#666', marginBottom: 'var(--space-6)' }}>
+                                        {formContent.subtitle}
+                                    </p>
+                                )}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                    {formContent.fields.map((field) => (
+                                        <div key={field.id}>
+                                            <label style={{ display: 'block', marginBottom: 'var(--space-1)', fontWeight: '500', color: '#333' }}>
+                                                {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
+                                            </label>
+                                            {field.type === 'textarea' ? (
+                                                <textarea
+                                                    placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+                                                    value={previewFormData[field.id] || ''}
+                                                    onChange={(e) => setPreviewFormData(prev => ({ ...prev, [field.id]: e.target.value }))}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: 'var(--space-3)',
+                                                        border: '1px solid #ddd',
+                                                        borderRadius: 'var(--radius-md)',
+                                                        fontSize: '1rem',
+                                                        minHeight: '100px',
+                                                    }}
+                                                />
+                                            ) : (
+                                                <input
+                                                    type={field.type}
+                                                    placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+                                                    value={previewFormData[field.id] || ''}
+                                                    onChange={(e) => setPreviewFormData(prev => ({ ...prev, [field.id]: e.target.value }))}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: 'var(--space-3)',
+                                                        border: '1px solid #ddd',
+                                                        borderRadius: 'var(--radius-md)',
+                                                        fontSize: '1rem',
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button
+                                        onClick={handlePreviewFormSubmit}
+                                        style={{
+                                            width: '100%',
+                                            padding: 'var(--space-4)',
+                                            fontSize: '1rem',
+                                            fontWeight: '600',
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: 'var(--radius-lg)',
+                                            cursor: 'pointer',
+                                            marginTop: 'var(--space-2)',
+                                        }}
+                                    >
+                                        {formContent.submitText}
+                                    </button>
                                 </div>
-                            ))}
-                            <button
-                                style={{
-                                    width: '100%',
-                                    padding: 'var(--space-4)',
-                                    fontSize: '1rem',
-                                    fontWeight: '600',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-lg)',
-                                    cursor: 'pointer',
-                                    marginTop: 'var(--space-2)',
-                                }}
-                            >
-                                {formContent.submitText}
-                            </button>
-                        </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

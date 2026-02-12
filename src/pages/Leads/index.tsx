@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { useToast } from '../../components/ui/Toast';
@@ -95,6 +95,8 @@ export default function Leads() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
     const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'single' | 'bulk'; id?: string } | null>(null);
+    const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+    const [dragOverStage, setDragOverStage] = useState<LeadStage | null>(null);
 
     // New lead form state
     const [newLead, setNewLead] = useState({
@@ -180,6 +182,60 @@ export default function Leads() {
         a.download = 'leads.csv';
         a.click();
     };
+
+    // Kanban drag-and-drop handlers
+    const handleDragStart = useCallback((e: React.DragEvent, leadId: string) => {
+        setDraggedLeadId(leadId);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', leadId);
+        // Make the dragged element semi-transparent
+        if (e.currentTarget instanceof HTMLElement) {
+            requestAnimationFrame(() => {
+                (e.currentTarget as HTMLElement).style.opacity = '0.4';
+            });
+        }
+    }, []);
+
+    const handleDragEnd = useCallback((e: React.DragEvent) => {
+        setDraggedLeadId(null);
+        setDragOverStage(null);
+        if (e.currentTarget instanceof HTMLElement) {
+            e.currentTarget.style.opacity = '1';
+        }
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent, stage: LeadStage) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverStage(stage);
+    }, []);
+
+    const handleDragLeave = useCallback(() => {
+        setDragOverStage(null);
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent, targetStage: LeadStage) => {
+        e.preventDefault();
+        const leadId = e.dataTransfer.getData('text/plain') || draggedLeadId;
+        if (!leadId) return;
+
+        const lead = leads.find(l => l.id === leadId);
+        if (lead && lead.stage !== targetStage) {
+            dispatch({
+                type: 'UPDATE_LEAD',
+                payload: {
+                    ...lead,
+                    stage: targetStage,
+                    updatedAt: new Date().toISOString(),
+                    lastActivityAt: new Date().toISOString(),
+                },
+            });
+            addToast('success', `${lead.name} moved to ${targetStage}`);
+        }
+
+        setDraggedLeadId(null);
+        setDragOverStage(null);
+    }, [draggedLeadId, leads, dispatch, addToast]);
 
     const formatDate = (date: string) => {
         return new Date(date).toLocaleDateString('en-US', {
@@ -379,8 +435,20 @@ export default function Leads() {
                 <div className="kanban-board">
                     {stages.map((stage) => {
                         const stageLeads = filteredLeads.filter(l => l.stage === stage);
+                        const isOver = dragOverStage === stage;
                         return (
-                            <div key={stage} className="kanban-column">
+                            <div
+                                key={stage}
+                                className="kanban-column"
+                                onDragOver={(e) => handleDragOver(e, stage)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, stage)}
+                                style={{
+                                    outline: isOver ? '2px solid var(--color-primary)' : undefined,
+                                    background: isOver ? 'var(--color-bg-tertiary)' : undefined,
+                                    transition: 'outline 0.15s ease, background 0.15s ease',
+                                }}
+                            >
                                 <div className="kanban-column-header">
                                     <div className="flex items-center gap-2">
                                         <span className={`badge ${stageColors[stage]}`}>{stage}</span>
@@ -389,24 +457,35 @@ export default function Leads() {
                                 </div>
                                 <div className="flex flex-col gap-3">
                                     {stageLeads.map((lead) => (
-                                        <Link key={lead.id} to={`/leads/${lead.id}`} style={{ textDecoration: 'none' }}>
-                                            <div className="kanban-card">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="avatar avatar-sm">{lead.name.charAt(0)}</div>
-                                                    <div className="font-medium text-sm">{lead.name}</div>
-                                                </div>
-                                                <p className="text-xs text-muted mb-2">{lead.email}</p>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xs text-muted">{lead.company || 'No company'}</span>
-                                                    <div
-                                                        className="flex items-center gap-1 text-xs"
-                                                        style={{ color: getScoreColor(lead.score) }}
-                                                    >
-                                                        <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>{lead.score}</span>
+                                        <div
+                                            key={lead.id}
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, lead.id)}
+                                            onDragEnd={handleDragEnd}
+                                            style={{
+                                                cursor: 'grab',
+                                                opacity: draggedLeadId === lead.id ? 0.4 : 1,
+                                            }}
+                                        >
+                                            <Link to={`/leads/${lead.id}`} style={{ textDecoration: 'none' }}>
+                                                <div className="kanban-card">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <div className="avatar avatar-sm">{lead.name.charAt(0)}</div>
+                                                        <div className="font-medium text-sm">{lead.name}</div>
+                                                    </div>
+                                                    <p className="text-xs text-muted mb-2">{lead.email}</p>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-muted">{lead.company || 'No company'}</span>
+                                                        <div
+                                                            className="flex items-center gap-1 text-xs"
+                                                            style={{ color: getScoreColor(lead.score) }}
+                                                        >
+                                                            <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>{lead.score}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </Link>
+                                            </Link>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
