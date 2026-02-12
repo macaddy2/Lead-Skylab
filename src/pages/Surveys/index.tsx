@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
+import { useToast } from '../../components/ui/Toast';
 import type { Survey } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -36,6 +37,7 @@ const COLORS = ['#10b981', '#f59e0b', '#ef4444'];
 
 export default function Surveys() {
     const { state, dispatch } = useData();
+    const { addToast } = useToast();
     const { surveys } = state;
 
     const [filter, setFilter] = useState<'all' | 'active' | 'closed'>('all');
@@ -133,6 +135,16 @@ export default function Surveys() {
                 status: survey.status === 'active' ? 'closed' : 'active',
                 updatedAt: new Date().toISOString(),
             },
+        });
+    };
+
+    const handleShareSurvey = (surveyId: string) => {
+        const url = `${window.location.origin}/survey/${surveyId}/respond`;
+        navigator.clipboard.writeText(url).then(() => {
+            addToast('success', 'Survey link copied to clipboard');
+        }).catch(() => {
+            // Fallback: show the URL
+            addToast('info', `Share URL: ${url}`);
         });
     };
 
@@ -369,6 +381,15 @@ export default function Surveys() {
                                     <Link to={`/surveys/${survey.id}`} className="btn btn-secondary btn-sm flex-1">
                                         Edit
                                     </Link>
+                                    {survey.status === 'active' && (
+                                        <button
+                                            className="btn btn-secondary btn-sm flex-1"
+                                            onClick={() => handleShareSurvey(survey.id)}
+                                            title="Copy public survey link"
+                                        >
+                                            Share
+                                        </button>
+                                    )}
                                     <button
                                         className={`btn btn-sm flex-1 ${survey.status === 'active' ? 'btn-ghost' : 'btn-primary'}`}
                                         onClick={() => toggleStatus(survey)}

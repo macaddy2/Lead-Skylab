@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useSupabaseSync } from './useSupabaseSync';
 import type {
     AppState,
     AppAction,
@@ -737,7 +738,17 @@ const STORAGE_KEY = 'lead_skylab_state';
 
 // Provider component
 export function DataProvider({ children }: { children: ReactNode }) {
-    const [state, dispatch] = useReducer(appReducer, initialState);
+    const [state, baseDispatch] = useReducer(appReducer, initialState);
+    const { syncAction, isOnline } = useSupabaseSync();
+
+    // Wrapped dispatch that syncs to Supabase in background
+    const dispatch = useCallback((action: AppAction) => {
+        baseDispatch(action);
+        // Fire-and-forget Supabase sync
+        syncAction(action).catch(() => {
+            // Sync errors logged in useSupabaseSync, app continues offline
+        });
+    }, [syncAction]);
 
     // Load state from localStorage on mount
     useEffect(() => {
@@ -745,12 +756,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const savedState = localStorage.getItem(STORAGE_KEY);
             if (savedState) {
                 const parsed = JSON.parse(savedState);
-                dispatch({ type: 'LOAD_STATE', payload: parsed });
+                baseDispatch({ type: 'LOAD_STATE', payload: parsed });
             }
         } catch (error) {
             console.error('Failed to load state from localStorage:', error);
         }
-    }, []);
+        if (isOnline) {
+            console.info('Supabase sync enabled - changes will sync to cloud');
+        }
+    }, [isOnline]);
 
     // Save state to localStorage on change
     useEffect(() => {
