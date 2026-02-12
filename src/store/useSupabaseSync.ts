@@ -4,20 +4,19 @@
 // If Supabase is unreachable, the app continues offline.
 
 import { useCallback, useRef } from 'react';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { AppAction } from '../types';
 
 // Dynamically import the API to handle missing env vars gracefully
 let api: typeof import('../lib/api') | null = null;
-let supabaseAvailable = false;
+const supabaseAvailable = isSupabaseConfigured;
 
-try {
-    // Only load if env vars exist
-    if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+if (supabaseAvailable) {
+    try {
         api = await import('../lib/api');
-        supabaseAvailable = true;
+    } catch {
+        console.warn('Failed to load API module');
     }
-} catch {
-    console.warn('Supabase not configured - running in offline mode');
 }
 
 type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error';
