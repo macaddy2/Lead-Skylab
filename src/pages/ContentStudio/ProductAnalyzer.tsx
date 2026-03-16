@@ -100,28 +100,33 @@ export default function ProductAnalyzer() {
         });
     };
 
-    const handleAnalyze = () => {
+    const handleAnalyze = async () => {
         setIsAnalyzing(true);
-        // Simulate AI analysis
-        setTimeout(() => {
-            setIsAnalyzing(false);
+        setSaveError(null);
+        try {
+            // Import analyzeProductForLaunch from gemini.ts
+            const { analyzeProductForLaunch } = await import('../../lib/gemini');
+            const result = await analyzeProductForLaunch(
+                formData.url || '',
+                formData.name || '',
+                formData.description || ''
+            );
+
+            setFormData(prev => ({
+                ...prev,
+                keywords: [...new Set([...(prev.keywords || []), ...result.suggestedKeywords])],
+                // Could also merge suggestedPlatforms or launchStrategy if we add fields for them
+            }));
             setAnalyzed(true);
-            // Add some auto-generated keywords if URL provided
-            if (formData.url && (formData.keywords || []).length === 0) {
-                setFormData({
-                    ...formData,
-                    keywords: ['startup', 'saas', 'productivity', 'growth', 'automation'],
-                });
-            }
-        }, 2000);
+        } catch (err) {
+            console.error('Analysis failed:', err);
+            setSaveError('AI Analysis failed. Check if API key is configured.');
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     const handleSave = async () => {
-        if (!user) {
-            setSaveError('You must be logged in to save');
-            return;
-        }
-
         setIsSaving(true);
         setSaveError(null);
 
@@ -140,25 +145,29 @@ export default function ProductAnalyzer() {
         };
 
         try {
-            // Save to Supabase
-            await productProfileApi.upsert({
-                user_id: user.id,
-                name: profile.name,
-                url: profile.url || null,
-                description: profile.description,
-                value_props: profile.valueProps,
-                target_audience: profile.targetAudience,
-                keywords: profile.keywords,
-                tone: profile.tone,
-                competitors: profile.competitors,
-            });
-
-            // Also update local state for immediate feedback
+            // Update local state immediately for seamless persistence
             dispatch({ type: 'SET_PRODUCT_PROFILE', payload: profile });
+
+            // Save to Supabase if authenticated
+            if (user) {
+                await productProfileApi.upsert({
+                    user_id: user.id,
+                    name: profile.name,
+                    url: profile.url || null,
+                    description: profile.description,
+                    value_props: profile.valueProps,
+                    target_audience: profile.targetAudience,
+                    keywords: profile.keywords,
+                    tone: profile.tone,
+                    competitors: profile.competitors,
+                });
+            }
             navigate('/content');
         } catch (err) {
-            console.error('Failed to save profile:', err);
-            setSaveError(err instanceof Error ? err.message : 'Failed to save profile');
+            console.error('Failed to save profile to database:', err);
+            // It still saved locally, so we can just log or show a warning, but we don't strictly prevent navigation
+            setSaveError('Profile saved locally, but cloud sync failed.');
+            setTimeout(() => navigate('/content'), 1500);
         } finally {
             setIsSaving(false);
         }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-// Icons as inline SVGs for simplicity
+// Icons as inline SVGs
 const icons = {
     dashboard: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,45 +106,11 @@ export default function Sidebar() {
     return (
         <aside
             className="sidebar"
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                height: '100vh',
-                width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
-                background: 'var(--glass-bg)',
-                backdropFilter: 'blur(20px)',
-                borderRight: '1px solid var(--glass-border)',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'width var(--transition-slow)',
-                zIndex: 'var(--z-sticky)',
-                overflow: 'hidden',
-            }}
+            style={{ width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
         >
             {/* Logo */}
-            <div
-                style={{
-                    padding: 'var(--space-5) var(--space-4)',
-                    borderBottom: '1px solid var(--glass-border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-3)',
-                    minHeight: '64px',
-                }}
-            >
-                <div
-                    style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: 'var(--radius-lg)',
-                        background: 'var(--gradient-primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                    }}
-                >
+            <div className="sidebar-logo">
+                <div className="sidebar-logo-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="12 2 2 7 12 12 22 7 12 2" />
                         <polyline points="2 17 12 22 22 17" />
@@ -152,85 +118,44 @@ export default function Sidebar() {
                     </svg>
                 </div>
                 {!collapsed && (
-                    <div style={{ overflow: 'hidden' }}>
-                        <h1
-                            style={{
-                                fontSize: 'var(--font-size-lg)',
-                                fontWeight: 'var(--font-weight-bold)',
-                                background: 'var(--gradient-primary)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                backgroundClip: 'text',
-                                whiteSpace: 'nowrap',
-                            }}
-                        >
-                            Lead Skylab
-                        </h1>
-                        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-                            PMF Engine
-                        </p>
+                    <div className="sidebar-logo-overflow">
+                        <h1 className="sidebar-logo-text">Lead Skylab</h1>
+                        <p className="sidebar-logo-subtitle">PMF Engine</p>
                     </div>
                 )}
             </div>
 
             {/* Navigation */}
-            <nav aria-label="Main navigation" style={{ flex: 1, padding: 'var(--space-4)', overflowY: 'auto' }}>
-                <ul role="menubar" aria-orientation="vertical" style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+            <nav className="sidebar-nav">
+                <ul className="sidebar-nav-list">
                     {navItems.map((item) => {
                         const isActive = location.pathname === item.path ||
                             (item.path !== '/' && location.pathname.startsWith(item.path));
 
                         return (
-                            <li key={item.path} role="none">
+                            <li key={item.path}>
                                 <NavLink
                                     to={item.path}
-                                    role="menuitem"
-                                    aria-current={isActive ? 'page' : undefined}
+                                    className={`sidebar-nav-link ${isActive ? 'active' : ''}`}
                                     style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 'var(--space-3)',
                                         padding: collapsed ? 'var(--space-3)' : 'var(--space-3) var(--space-4)',
-                                        borderRadius: 'var(--radius-lg)',
-                                        color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                                        background: isActive ? 'var(--glass-hover)' : 'transparent',
-                                        textDecoration: 'none',
-                                        transition: 'all var(--transition-fast)',
                                         justifyContent: collapsed ? 'center' : 'flex-start',
-                                        position: 'relative',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (!isActive) {
-                                            e.currentTarget.style.background = 'var(--glass-bg)';
-                                            e.currentTarget.style.color = 'var(--color-text-primary)';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!isActive) {
-                                            e.currentTarget.style.background = 'transparent';
-                                            e.currentTarget.style.color = 'var(--color-text-secondary)';
-                                        }
                                     }}
                                 >
                                     {isActive && (
                                         <div
-                                            style={{
-                                                position: 'absolute',
-                                                left: collapsed ? '50%' : '-4px',
-                                                top: collapsed ? '-4px' : '50%',
-                                                transform: collapsed ? 'translateX(-50%)' : 'translateY(-50%)',
-                                                width: collapsed ? '24px' : '3px',
-                                                height: collapsed ? '3px' : '24px',
-                                                background: 'var(--gradient-primary)',
-                                                borderRadius: 'var(--radius-full)',
-                                            }}
+                                            className="sidebar-active-indicator"
+                                            style={collapsed
+                                                ? { left: '50%', top: '-4px', transform: 'translateX(-50%)', width: '24px', height: '3px' }
+                                                : { left: '-4px', top: '50%', transform: 'translateY(-50%)', width: '3px', height: '24px' }
+                                            }
                                         />
                                     )}
-                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span className="sidebar-icon-wrap">
                                         {icons[item.icon]}
                                     </span>
                                     {!collapsed && (
-                                        <span style={{ whiteSpace: 'nowrap', fontSize: 'var(--font-size-sm)' }}>
+                                        <span className="sidebar-nav-label">
                                             {item.label}
                                         </span>
                                     )}
@@ -242,68 +167,24 @@ export default function Sidebar() {
             </nav>
 
             {/* Footer */}
-            <div
-                style={{
-                    padding: 'var(--space-4)',
-                    borderTop: '1px solid var(--glass-border)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 'var(--space-3)',
-                }}
-            >
+            <div className="sidebar-footer">
                 {/* Settings Link */}
                 <NavLink
                     to="/settings"
+                    className="sidebar-nav-link"
                     style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--space-3)',
                         padding: collapsed ? 'var(--space-3)' : 'var(--space-3) var(--space-4)',
-                        borderRadius: 'var(--radius-lg)',
-                        color: 'var(--color-text-secondary)',
-                        textDecoration: 'none',
-                        transition: 'all var(--transition-fast)',
                         justifyContent: collapsed ? 'center' : 'flex-start',
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--glass-bg)';
-                        e.currentTarget.style.color = 'var(--color-text-primary)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = 'var(--color-text-secondary)';
                     }}
                 >
                     {icons.settings}
-                    {!collapsed && <span style={{ fontSize: 'var(--font-size-sm)' }}>Settings</span>}
+                    {!collapsed && <span className="sidebar-nav-label">Settings</span>}
                 </NavLink>
 
                 {/* Collapse Toggle */}
                 <button
                     onClick={() => setCollapsed(!collapsed)}
-                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                    aria-expanded={!collapsed}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 'var(--space-2)',
-                        padding: 'var(--space-3)',
-                        background: 'transparent',
-                        border: '1px solid var(--glass-border)',
-                        borderRadius: 'var(--radius-lg)',
-                        color: 'var(--color-text-muted)',
-                        cursor: 'pointer',
-                        transition: 'all var(--transition-fast)',
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--color-primary)';
-                        e.currentTarget.style.color = 'var(--color-primary)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--glass-border)';
-                        e.currentTarget.style.color = 'var(--color-text-muted)';
-                    }}
+                    className="sidebar-collapse-btn"
                 >
                     {collapsed ? icons.expand : icons.collapse}
                 </button>

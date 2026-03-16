@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getDefaultPreferences } from '../../types';
 import type { OwnerPreferences, ContentPlatform, ContentTone } from '../../types';
@@ -59,20 +59,20 @@ const Preferences: React.FC = () => {
     return (
         <div className="preferences-page">
             <div className="page-header">
-                <Link to="/autopilot" className="back-link">← Back</Link>
-                <h1>⚙️ Owner Preferences</h1>
+                <Link to="/autopilot" className="back-link">â† Back</Link>
+                <h1>âš™ï¸ Owner Preferences</h1>
                 <button
                     className={`btn btn-primary ${saved ? 'btn-success' : ''}`}
                     onClick={handleSave}
                 >
-                    {saved ? '✓ Saved!' : 'Save Preferences'}
+                    {saved ? 'âœ“ Saved!' : 'Save Preferences'}
                 </button>
             </div>
 
             <div className="preferences-grid">
                 {/* Platforms */}
                 <section className="pref-section glass-card">
-                    <h2>🎯 Enabled Platforms</h2>
+                    <h2>ðŸŽ¯ Enabled Platforms</h2>
                     <p className="section-desc">Select which platforms to include in your content strategy</p>
                     <div className="platform-grid">
                         {platforms.map(platform => (
@@ -82,13 +82,13 @@ const Preferences: React.FC = () => {
                                 onClick={() => togglePlatform(platform)}
                             >
                                 <span className="platform-icon">
-                                    {platform === 'twitter' && '𝕏'}
-                                    {platform === 'linkedin' && '🔗'}
-                                    {platform === 'instagram' && '📸'}
-                                    {platform === 'tiktok' && '♪'}
-                                    {platform === 'reddit' && '🔴'}
+                                    {platform === 'twitter' && 'ð•'}
+                                    {platform === 'linkedin' && 'ðŸ”—'}
+                                    {platform === 'instagram' && 'ðŸ“¸'}
+                                    {platform === 'tiktok' && 'â™ª'}
+                                    {platform === 'reddit' && 'ðŸ”´'}
                                     {platform === 'facebook' && 'f'}
-                                    {platform === 'email' && '📧'}
+                                    {platform === 'email' && 'ðŸ“§'}
                                 </span>
                                 <span className="platform-name">{platform}</span>
                             </button>
@@ -98,7 +98,7 @@ const Preferences: React.FC = () => {
 
                 {/* Posting Frequency */}
                 <section className="pref-section glass-card">
-                    <h2>📅 Posting Frequency</h2>
+                    <h2>ðŸ“… Posting Frequency</h2>
                     <p className="section-desc">Posts per day for each platform</p>
                     <div className="frequency-list">
                         {preferences.enabledPlatforms.map(platform => (
@@ -131,7 +131,7 @@ const Preferences: React.FC = () => {
 
                 {/* Tone by Platform */}
                 <section className="pref-section glass-card">
-                    <h2>🎭 Voice & Tone</h2>
+                    <h2>ðŸŽ­ Voice & Tone</h2>
                     <p className="section-desc">Set the tone for each platform</p>
                     <div className="tone-list">
                         {preferences.enabledPlatforms.map(platform => (
@@ -152,7 +152,7 @@ const Preferences: React.FC = () => {
 
                 {/* Approval Workflow */}
                 <section className="pref-section glass-card">
-                    <h2>✅ Approval Workflow</h2>
+                    <h2>âœ… Approval Workflow</h2>
                     <p className="section-desc">How do you want to review content?</p>
                     <div className="approval-options">
                         {[
@@ -178,13 +178,13 @@ const Preferences: React.FC = () => {
 
                 {/* Content Pillars */}
                 <section className="pref-section glass-card full-width">
-                    <h2>📝 Content Pillars</h2>
+                    <h2>ðŸ“ Content Pillars</h2>
                     <p className="section-desc">Define your main content themes</p>
                     <div className="tags-container">
                         {preferences.contentPillars.map((pillar, i) => (
                             <span key={i} className="tag">
                                 {pillar}
-                                <button onClick={() => removeTag('contentPillars', i)}>×</button>
+                                <button onClick={() => removeTag('contentPillars', i)}>Ã—</button>
                             </span>
                         ))}
                         <input
@@ -202,12 +202,12 @@ const Preferences: React.FC = () => {
 
                 {/* Keywords */}
                 <section className="pref-section glass-card">
-                    <h2>🔑 Keywords</h2>
+                    <h2>ðŸ”‘ Keywords</h2>
                     <div className="tags-container">
                         {preferences.keywords.map((kw, i) => (
                             <span key={i} className="tag tag-secondary">
                                 {kw}
-                                <button onClick={() => removeTag('keywords', i)}>×</button>
+                                <button onClick={() => removeTag('keywords', i)}>Ã—</button>
                             </span>
                         ))}
                         <input
@@ -225,14 +225,14 @@ const Preferences: React.FC = () => {
 
                 {/* Words to Use / Avoid */}
                 <section className="pref-section glass-card">
-                    <h2>💬 Brand Voice</h2>
+                    <h2>ðŸ’¬ Brand Voice</h2>
                     <div className="voice-group">
                         <label>Words to use:</label>
                         <div className="tags-container small">
                             {preferences.wordsToUse.map((word, i) => (
                                 <span key={i} className="tag tag-success">
                                     {word}
-                                    <button onClick={() => removeTag('wordsToUse', i)}>×</button>
+                                    <button onClick={() => removeTag('wordsToUse', i)}>Ã—</button>
                                 </span>
                             ))}
                             <input
@@ -253,7 +253,7 @@ const Preferences: React.FC = () => {
                             {preferences.wordsToAvoid.map((word, i) => (
                                 <span key={i} className="tag tag-danger">
                                     {word}
-                                    <button onClick={() => removeTag('wordsToAvoid', i)}>×</button>
+                                    <button onClick={() => removeTag('wordsToAvoid', i)}>Ã—</button>
                                 </span>
                             ))}
                             <input
@@ -271,267 +271,6 @@ const Preferences: React.FC = () => {
                 </section>
             </div>
 
-            <style>{`
-                .preferences-page {
-                    padding: var(--spacing-6);
-                    max-width: 1200px;
-                    margin: 0 auto;
-                }
-
-                .page-header {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing-4);
-                    margin-bottom: var(--spacing-6);
-                    flex-wrap: wrap;
-                }
-
-                .page-header h1 {
-                    flex: 1;
-                    margin: 0;
-                    min-width: 200px;
-                }
-
-                .page-header .btn {
-                    white-space: nowrap;
-                }
-
-                .back-link {
-                    color: var(--gray-400);
-                    text-decoration: none;
-                    transition: color 0.2s ease;
-                }
-
-                .back-link:hover {
-                    color: var(--primary-400);
-                }
-
-                .preferences-grid {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: var(--spacing-4);
-                }
-
-                .pref-section {
-                    padding: var(--spacing-5);
-                }
-
-                .pref-section.full-width {
-                    grid-column: 1 / -1;
-                }
-
-                .pref-section h2 {
-                    margin-bottom: var(--spacing-2);
-                    font-size: 1.125rem;
-                    color: var(--gray-100);
-                }
-
-                .section-desc {
-                    color: var(--gray-500);
-                    font-size: 0.875rem;
-                    margin-bottom: var(--spacing-4);
-                }
-
-                .platform-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                    gap: var(--spacing-2);
-                }
-
-                .platform-btn {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: var(--spacing-2);
-                    padding: var(--spacing-3);
-                    border: 2px solid var(--gray-700);
-                    border-radius: var(--radius-md);
-                    background: var(--gray-800);
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                .platform-btn.active {
-                    border-color: var(--primary-500);
-                    background: rgba(99, 102, 241, 0.1);
-                }
-
-                .platform-icon {
-                    font-size: 1.5rem;
-                }
-
-                .platform-name {
-                    font-size: 0.75rem;
-                    text-transform: capitalize;
-                    color: var(--gray-300);
-                }
-
-                .frequency-list, .tone-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing-3);
-                }
-
-                .frequency-row, .tone-row {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing-3);
-                }
-
-                .platform-label {
-                    width: 80px;
-                    text-transform: capitalize;
-                    color: var(--gray-300);
-                    font-size: 0.875rem;
-                }
-
-                .frequency-row input[type="range"] {
-                    flex: 1;
-                }
-
-                .frequency-value {
-                    width: 50px;
-                    text-align: right;
-                    font-size: 0.875rem;
-                    color: var(--gray-400);
-                }
-
-                .tone-row select {
-                    flex: 1;
-                    padding: var(--spacing-2);
-                    border-radius: var(--radius-md);
-                    border: 1px solid var(--gray-700);
-                    background: var(--gray-800);
-                    color: var(--gray-100);
-                }
-
-                .weekend-toggle {
-                    margin-top: var(--spacing-4);
-                    padding-top: var(--spacing-4);
-                    border-top: 1px solid var(--gray-700);
-                }
-
-                .weekend-toggle label {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing-2);
-                    cursor: pointer;
-                    color: var(--gray-300);
-                }
-
-                .approval-options {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: var(--spacing-2);
-                }
-
-                .approval-btn {
-                    padding: var(--spacing-3);
-                    border: 2px solid var(--gray-700);
-                    border-radius: var(--radius-md);
-                    background: var(--gray-800);
-                    text-align: left;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                .approval-btn.active {
-                    border-color: var(--primary-500);
-                    background: rgba(99, 102, 241, 0.1);
-                }
-
-                .approval-btn strong {
-                    display: block;
-                    color: var(--gray-100);
-                    font-size: 0.875rem;
-                }
-
-                .approval-btn span {
-                    font-size: 0.75rem;
-                    color: var(--gray-500);
-                }
-
-                .tags-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: var(--spacing-2);
-                    padding: var(--spacing-3);
-                    background: var(--gray-800);
-                    border-radius: var(--radius-md);
-                    min-height: 48px;
-                }
-
-                .tags-container.small {
-                    padding: var(--spacing-2);
-                    min-height: 36px;
-                }
-
-                .tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 4px;
-                    padding: 4px 8px;
-                    background: var(--primary-600);
-                    color: white;
-                    border-radius: var(--radius-sm);
-                    font-size: 0.813rem;
-                }
-
-                .tag-secondary {
-                    background: var(--secondary-600);
-                }
-
-                .tag-success {
-                    background: var(--success-600);
-                }
-
-                .tag-danger {
-                    background: var(--error-600);
-                }
-
-                .tag button {
-                    background: none;
-                    border: none;
-                    color: rgba(255,255,255,0.7);
-                    cursor: pointer;
-                    padding: 0;
-                    font-size: 1rem;
-                    line-height: 1;
-                }
-
-                .tags-container input {
-                    flex: 1;
-                    min-width: 100px;
-                    border: none;
-                    background: transparent;
-                    color: var(--gray-100);
-                    font-size: 0.875rem;
-                }
-
-                .voice-group {
-                    margin-bottom: var(--spacing-4);
-                }
-
-                .voice-group:last-child {
-                    margin-bottom: 0;
-                }
-
-                .voice-group label {
-                    display: block;
-                    margin-bottom: var(--spacing-2);
-                    font-size: 0.813rem;
-                    color: var(--gray-400);
-                }
-
-                @media (max-width: 768px) {
-                    .preferences-grid {
-                        grid-template-columns: 1fr;
-                    }
-                    .approval-options {
-                        grid-template-columns: 1fr;
-                    }
-                }
-            `}</style>
         </div>
     );
 };

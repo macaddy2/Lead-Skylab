@@ -1,0 +1,97 @@
+Lead Skylab 2026 Product Launch Marketing Plan
+
+PRODUCT: Lead Skylab — AI-powered PMF engine for startup founders
+TARGET AUDIENCE: Solo founders, indie hackers, early-stage SaaS founders (Series Seed to A)
+CAMPAIGN NAME: "Ship Smarter" Launch Campaign
+DURATION: 30 days (March 16 - April 15, 2026)
+PLATFORMS: Twitter, LinkedIn, TikTok, Email, Reddit
+
+---
+
+PHASE 1: PRE-LAUNCH (March 16–23)
+
+Goal: Build anticipation, grow waitlist, establish thought leadership
+
+1. Twitter thread — "Why 90% of startups fail to find PMF" 
+   - Schedule: March 17, 9:00 AM
+   - Platform: Twitter
+   - Hook: Most startup founders spend 18 months building the wrong thing. Here's the 3-step PMF framework that changes everything.
+   - Hashtags: startup, pmf, saas, founders
+
+2. LinkedIn article — "The PMF Equation That Saved My Startup"
+   - Schedule: March 18, 8:00 AM  
+   - Platform: LinkedIn
+   - Content: Long-form thought leadership post about product-market fit validation. Include specific metrics: NPS > 40, retention > 60%, churn < 5%.
+   - Hashtags: startups, saas, productmanagement
+
+3. Reddit post — r/startups launch teaser
+   - Schedule: March 19, 10:00 AM
+   - Platform: Reddit
+   - Title: "We built an AI tool that tells you if you have PMF — looking for beta testers"
+   - Content: Transparent post sharing our journey, asking for feedback from the community.
+
+4. Email blast — Early access invite to waitlist
+   - Schedule: March 20, 10:00 AM
+   - Platform: Email
+   - Subject: You're invited to the Lead Skylab private beta
+   - Content: Exclusive early access invitation for waitlist subscribers. Emphasize limited spots.
+
+---
+
+PHASE 2: LAUNCH DAY (March 24)
+
+Goal: Maximum visibility, drive signups, community activation
+
+5. Twitter launch announcement
+   - Schedule: March 24, 9:00 AM
+   - Platform: Twitter
+   - Content: 🚀 Lead Skylab is LIVE! The AI-powered PMF engine for startup founders. Validate faster, launch smarter, grow confidently. Try it free today → leadskylab.io
+   - Hashtags: launch, startup, pmf, buildinpublic
+
+6. LinkedIn official announcement
+   - Schedule: March 24, 8:30 AM
+   - Platform: LinkedIn
+   - Content: Excited to announce Lead Skylab is now live! After 6 months of testing with 150+ founders, we've built the tool we always wished we had. Automate lead gen, run A/B tests, measure PMF scores all in one dashboard.
+   - Hashtags: launch, saas, startup, productlaunch
+
+7. TikTok launch video script
+   - Schedule: March 24, 12:00 PM
+   - Platform: TikTok
+   - Hook: "3 signs you DON'T have product-market fit (and how to fix it)"
+   - Hashtags: startup, founder, pmf, saas, buildinpublic
+
+---
+
+PHASE 3: GROWTH (March 25 – April 15)
+
+Goal: Sustain momentum, convert trial users, build social proof
+
+8. Twitter — First customer win story
+   - Schedule: March 28, 9:00 AM
+   - Platform: Twitter
+   - Content: User @johndoe went from 0 to 100 leads in 2 weeks using Lead Skylab. Here's exactly how they did it 🧵
+   - Hashtags: customerstory, saas, startup
+
+9. LinkedIn — Case study post
+   - Schedule: April 1, 8:00 AM
+   - Platform: LinkedIn
+   - Content: "How TechCorp 3x'd their lead conversion rate using Lead Skylab's A/B testing features" — detailed breakdown of their results.
+   - Hashtags: casestudy, b2bsaas, growth
+
+10. Email — 7-day user check-in
+    - Schedule: March 31, 10:00 AM
+    - Platform: Email
+    - Subject: How's Lead Skylab working for you?
+    - Content: Personal check-in email from founder. Ask for feedback, offer 1:1 onboarding call.
+
+11. Reddit — Sharing learnings post
+    - Schedule: April 5, 11:00 AM
+    - Platform: Reddit
+    - Title: "What I learned from 150 conversations with startup founders about PMF"
+    - Content: Aggregated insights from user research, adds value to community.
+
+12. TikTok — Product walkthrough
+    - Schedule: April 8, 7:00 PM
+    - Platform: TikTok
+    - Hook: "Watch me validate a startup idea in 10 minutes using AI"
+    - Hashtags: startup, buildinpublic, ai, founder

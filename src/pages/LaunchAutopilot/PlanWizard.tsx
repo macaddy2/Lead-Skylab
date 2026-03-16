@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,6 +46,9 @@ const PlanWizard: React.FC = () => {
             : getDefaultPreferences()
     );
 
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+
     const handleModeSelect = (mode: PlanInputMode) => {
         setInputMode(mode);
         if (mode === 'manual') {
@@ -58,9 +61,42 @@ const PlanWizard: React.FC = () => {
         setStep('details');
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         const steps: WizardStep[] = ['mode', 'details', 'phases', 'preferences', 'review'];
         const currentIndex = steps.indexOf(step);
+
+        if (step === 'details' && inputMode === 'import' && importedDoc && !phases.some(p => p.milestones.length > 0)) {
+            setIsAnalyzing(true);
+            try {
+                const { analyzeDocumentForPlan } = await import('../../lib/gemini');
+                const analysis = await analyzeDocumentForPlan(importedDoc);
+
+                if (!productName) setProductName(analysis.productName || 'Imported Product');
+                if (!description) setDescription(analysis.description || '');
+
+                if (analysis.phases && analysis.phases.length > 0) {
+                    setPhases(analysis.phases.map((p) => ({
+                        type: p.type as any,
+                        name: p.name,
+                        description: p.description,
+                        startDate: '',
+                        endDate: '',
+                        status: 'pending',
+                        milestones: p.suggestedMilestones.map(m => ({
+                            id: uuidv4(),
+                            title: m,
+                            dueDate: '',
+                            completed: false
+                        }))
+                    })));
+                }
+            } catch (err) {
+                console.error("Failed to analyze doc", err);
+            } finally {
+                setIsAnalyzing(false);
+            }
+        }
+
         if (currentIndex < steps.length - 1) {
             setStep(steps[currentIndex + 1]);
         }
@@ -74,7 +110,8 @@ const PlanWizard: React.FC = () => {
         }
     };
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
+        setIsGenerating(true);
         const now = new Date().toISOString();
         const newPlan: LaunchPlan = {
             id: uuidv4(),
@@ -96,7 +133,53 @@ const PlanWizard: React.FC = () => {
             updatedAt: now,
         };
         dispatch({ type: 'ADD_LAUNCH_PLAN', payload: newPlan });
-        navigate(`/autopilot/plans/${newPlan.id}`);
+
+        try {
+            const { generateLaunchContent, isAIConfigured } = await import('../../lib/gemini');
+            if (isAIConfigured() && preferences.enabledPlatforms.length > 0) {
+                const mockProfile = {
+                    id: 'temp',
+                    name: productName,
+                    description: description,
+                    url: productUrl,
+                    valueProps: [],
+                    targetAudience: 'anyone',
+                    keywords: [],
+                    tone: 'professional' as any,
+                    competitors: [],
+                    createdAt: now,
+                    updatedAt: now,
+                };
+
+                const draftContent = await generateLaunchContent({
+                    productProfile: mockProfile,
+                    launchDate: launchDate || now,
+                    platforms: preferences.enabledPlatforms as any,
+                    toneByPlatform: preferences.enabledPlatforms.reduce((acc, p) => ({ ...acc, [p]: 'professional' }), {} as any),
+                    contentPillars: preferences.contentPillars.length > 0 ? preferences.contentPillars : ['general'],
+                    phase: 'pre_launch',
+                    count: 3
+                });
+
+                draftContent.forEach((c) => {
+                    dispatch({
+                        type: 'ADD_CONTENT',
+                        payload: {
+                            ...c,
+                            id: uuidv4(),
+                            status: 'draft',
+                            createdAt: now,
+                            updatedAt: now,
+                        } as any
+                    });
+                });
+            }
+        } catch (e) {
+            console.error('Queue auto-gen failed', e);
+        } finally {
+            setIsGenerating(false);
+            navigate(`/autopilot/plans/${newPlan.id}`);
+        }
     };
 
     const togglePlatform = (platform: string) => {
@@ -138,7 +221,7 @@ const PlanWizard: React.FC = () => {
                                 className="mode-card glass-card hover-lift"
                                 onClick={() => handleModeSelect('import')}
                             >
-                                <span className="mode-icon">📄</span>
+                                <span className="mode-icon">ðŸ“„</span>
                                 <h3>Import Document</h3>
                                 <p>Paste an existing launch plan, PRD, or marketing doc. AI will extract phases and content ideas.</p>
                             </button>
@@ -147,7 +230,7 @@ const PlanWizard: React.FC = () => {
                                 className="mode-card glass-card hover-lift"
                                 onClick={() => handleModeSelect('ai_analyze')}
                             >
-                                <span className="mode-icon">🤖</span>
+                                <span className="mode-icon">ðŸ¤–</span>
                                 <h3>AI Analyze</h3>
                                 <p>Enter your product URL and social handles. AI will analyze and create a tailored plan.</p>
                             </button>
@@ -156,7 +239,7 @@ const PlanWizard: React.FC = () => {
                                 className="mode-card glass-card hover-lift"
                                 onClick={() => handleModeSelect('manual')}
                             >
-                                <span className="mode-icon">✏️</span>
+                                <span className="mode-icon">âœï¸</span>
                                 <h3>Manual Setup</h3>
                                 <p>Choose from templates and customize phases, milestones, and content cadence yourself.</p>
                             </button>
@@ -301,7 +384,7 @@ const PlanWizard: React.FC = () => {
                                                             };
                                                             setPhases(updated);
                                                         }}
-                                                    >×</button>
+                                                    >Ã—</button>
                                                 </span>
                                             ))}
                                             <input
@@ -344,7 +427,7 @@ const PlanWizard: React.FC = () => {
 
                         <div className="preferences-sections">
                             <div className="pref-section">
-                                <h3>🎯 Platforms</h3>
+                                <h3>ðŸŽ¯ Platforms</h3>
                                 <div className="platform-toggles">
                                     {['twitter', 'linkedin', 'instagram', 'tiktok', 'reddit', 'facebook', 'email'].map(platform => (
                                         <button
@@ -359,7 +442,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="pref-section">
-                                <h3>✅ Approval Workflow</h3>
+                                <h3>âœ… Approval Workflow</h3>
                                 <div className="approval-options">
                                     {[
                                         { value: 'daily_digest', label: 'Daily Digest', desc: 'Review batch of content each morning' },
@@ -380,7 +463,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="pref-section">
-                                <h3>📝 Content Pillars</h3>
+                                <h3>ðŸ“ Content Pillars</h3>
                                 <div className="tags-input">
                                     {preferences.contentPillars.map((pillar, i) => (
                                         <span key={i} className="tag">
@@ -388,7 +471,7 @@ const PlanWizard: React.FC = () => {
                                             <button onClick={() => setPreferences({
                                                 ...preferences,
                                                 contentPillars: preferences.contentPillars.filter((_, idx) => idx !== i),
-                                            })}>×</button>
+                                            })}>Ã—</button>
                                         </span>
                                     ))}
                                     <input
@@ -411,7 +494,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="pref-section">
-                                <h3>⏰ Weekend Posting</h3>
+                                <h3>â° Weekend Posting</h3>
                                 <label className="toggle-switch">
                                     <input
                                         type="checkbox"
@@ -434,7 +517,7 @@ const PlanWizard: React.FC = () => {
 
                         <div className="review-sections">
                             <div className="review-section">
-                                <h4>📋 Plan Details</h4>
+                                <h4>ðŸ“‹ Plan Details</h4>
                                 <dl>
                                     <dt>Name</dt><dd>{planName}</dd>
                                     <dt>Product</dt><dd>{productName}</dd>
@@ -444,7 +527,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="review-section">
-                                <h4>📅 Phases ({phases.length})</h4>
+                                <h4>ðŸ“… Phases ({phases.length})</h4>
                                 <ul>
                                     {phases.map(p => (
                                         <li key={p.type}>
@@ -455,7 +538,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="review-section">
-                                <h4>🎯 Platforms</h4>
+                                <h4>ðŸŽ¯ Platforms</h4>
                                 <div className="platform-badges">
                                     {preferences.enabledPlatforms.map(p => (
                                         <span key={p} className="platform-badge">{p}</span>
@@ -464,7 +547,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="review-section">
-                                <h4>✅ Approval</h4>
+                                <h4>âœ… Approval</h4>
                                 <p>{preferences.approvalMode.replace('_', ' ')}</p>
                             </div>
                         </div>
@@ -475,7 +558,7 @@ const PlanWizard: React.FC = () => {
             <div className="wizard-actions">
                 {step !== 'mode' && (
                     <button className="btn btn-ghost" onClick={handleBack}>
-                        ← Back
+                        â† Back
                     </button>
                 )}
                 <div className="spacer"></div>
@@ -483,486 +566,18 @@ const PlanWizard: React.FC = () => {
                     <button
                         className="btn btn-primary"
                         onClick={handleNext}
-                        disabled={step === 'details' && (!planName || !productName || !launchDate)}
+                        disabled={isAnalyzing || (step === 'details' && (!planName || !productName || !launchDate))}
                     >
-                        Continue →
+                        {isAnalyzing ? 'Analyzing...' : 'Continue →'}
                     </button>
                 ) : (
-                    <button className="btn btn-primary" onClick={handleCreate}>
-                        🚀 Create Launch Plan
+                    <button className="btn btn-primary" onClick={handleCreate} disabled={isGenerating}>
+                        {isGenerating ? 'Generating...' : '🚀 Create Launch Plan'}
                     </button>
                 )}
             </div>
 
-            <style>{`
-                .plan-wizard {
-                    padding: var(--spacing-6);
-                    max-width: 900px;
-                    margin: 0 auto;
-                }
 
-                .wizard-header {
-                    text-align: center;
-                    margin-bottom: var(--spacing-6);
-                }
-
-                .wizard-header h1 {
-                    margin-bottom: var(--spacing-6);
-                    background: linear-gradient(135deg, var(--primary-400), var(--secondary-400));
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-
-                .wizard-steps {
-                    display: flex;
-                    justify-content: center;
-                    gap: var(--spacing-2);
-                }
-
-                .step-indicator {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing-2);
-                    padding: var(--spacing-2) var(--spacing-4);
-                    border-radius: var(--radius-full);
-                    background: var(--gray-800);
-                    color: var(--gray-500);
-                    font-size: 0.875rem;
-                }
-
-                .step-indicator.active {
-                    background: var(--primary-600);
-                    color: white;
-                }
-
-                .step-indicator.completed {
-                    background: var(--success-600);
-                    color: white;
-                }
-
-                .step-number {
-                    width: 24px;
-                    height: 24px;
-                    border-radius: 50%;
-                    background: rgba(255,255,255,0.2);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 600;
-                }
-
-                .wizard-content {
-                    padding: var(--spacing-8);
-                    margin-bottom: var(--spacing-4);
-                    min-height: 400px;
-                }
-
-                .step-content h2 {
-                    margin-bottom: var(--spacing-2);
-                    color: var(--gray-100);
-                }
-
-                .step-description {
-                    color: var(--gray-400);
-                    margin-bottom: var(--spacing-6);
-                }
-
-                .mode-cards {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: var(--spacing-4);
-                }
-
-                .mode-card {
-                    padding: var(--spacing-6);
-                    text-align: center;
-                    border: 2px solid transparent;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                .mode-card:hover {
-                    border-color: var(--primary-500);
-                }
-
-                .mode-icon {
-                    font-size: 3rem;
-                    display: block;
-                    margin-bottom: var(--spacing-4);
-                }
-
-                .mode-card h3 {
-                    color: var(--gray-100);
-                    margin-bottom: var(--spacing-2);
-                }
-
-                .mode-card p {
-                    color: var(--gray-400);
-                    font-size: 0.875rem;
-                }
-
-                .form-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: var(--spacing-4);
-                    margin-bottom: var(--spacing-4);
-                }
-
-                .form-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing-2);
-                }
-
-                .form-group label {
-                    font-size: 0.875rem;
-                    color: var(--gray-300);
-                    font-weight: 500;
-                }
-
-                .form-group input,
-                .form-group textarea,
-                .form-group select {
-                    padding: var(--spacing-3);
-                    border-radius: var(--radius-md);
-                    border: 1px solid var(--gray-700);
-                    background: var(--gray-800);
-                    color: var(--gray-100);
-                    font-size: 0.938rem;
-                }
-
-                .form-group input:focus,
-                .form-group textarea:focus {
-                    outline: none;
-                    border-color: var(--primary-500);
-                }
-
-                .textarea-lg {
-                    font-family: monospace;
-                    font-size: 0.813rem;
-                }
-
-                .form-hint {
-                    font-size: 0.75rem;
-                    color: var(--gray-500);
-                }
-
-                .phases-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing-4);
-                }
-
-                .phase-config {
-                    padding: var(--spacing-5);
-                }
-
-                .phase-header {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing-4);
-                    margin-bottom: var(--spacing-4);
-                }
-
-                .phase-number {
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 50%;
-                    background: var(--primary-600);
-                    color: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 600;
-                }
-
-                .phase-name-input {
-                    font-size: 1.125rem;
-                    font-weight: 600;
-                    background: transparent;
-                    border: none;
-                    color: var(--gray-100);
-                    padding: 0;
-                }
-
-                .phase-type {
-                    display: block;
-                    font-size: 0.75rem;
-                    color: var(--gray-500);
-                    text-transform: uppercase;
-                }
-
-                .phase-dates {
-                    display: flex;
-                    gap: var(--spacing-4);
-                    margin-bottom: var(--spacing-4);
-                }
-
-                .milestones-tags {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: var(--spacing-2);
-                    padding: var(--spacing-3);
-                    background: var(--gray-800);
-                    border-radius: var(--radius-md);
-                    min-height: 44px;
-                }
-
-                .milestone-tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: var(--spacing-1);
-                    padding: 4px 8px;
-                    background: var(--primary-600);
-                    color: white;
-                    border-radius: var(--radius-sm);
-                    font-size: 0.813rem;
-                }
-
-                .remove-btn {
-                    background: none;
-                    border: none;
-                    color: rgba(255,255,255,0.7);
-                    cursor: pointer;
-                    padding: 0 2px;
-                    font-size: 1rem;
-                }
-
-                .milestone-input {
-                    flex: 1;
-                    min-width: 120px;
-                    border: none;
-                    background: transparent;
-                    color: var(--gray-100);
-                }
-
-                .preferences-sections {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing-6);
-                }
-
-                .pref-section h3 {
-                    margin-bottom: var(--spacing-3);
-                    color: var(--gray-200);
-                }
-
-                .platform-toggles {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: var(--spacing-2);
-                }
-
-                .platform-toggle {
-                    padding: var(--spacing-2) var(--spacing-4);
-                    border-radius: var(--radius-full);
-                    border: 1px solid var(--gray-700);
-                    background: var(--gray-800);
-                    color: var(--gray-400);
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                .platform-toggle.active {
-                    background: var(--primary-600);
-                    border-color: var(--primary-600);
-                    color: white;
-                }
-
-                .approval-options {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: var(--spacing-3);
-                }
-
-                .approval-option {
-                    padding: var(--spacing-4);
-                    border-radius: var(--radius-md);
-                    border: 2px solid var(--gray-700);
-                    background: var(--gray-800);
-                    text-align: left;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-
-                .approval-option.active {
-                    border-color: var(--primary-500);
-                    background: rgba(99, 102, 241, 0.1);
-                }
-
-                .approval-option strong {
-                    display: block;
-                    color: var(--gray-100);
-                    margin-bottom: var(--spacing-1);
-                }
-
-                .approval-option span {
-                    font-size: 0.813rem;
-                    color: var(--gray-400);
-                }
-
-                .tags-input {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: var(--spacing-2);
-                    padding: var(--spacing-3);
-                    background: var(--gray-800);
-                    border-radius: var(--radius-md);
-                    min-height: 44px;
-                }
-
-                .tag {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: var(--spacing-1);
-                    padding: 4px 8px;
-                    background: var(--secondary-600);
-                    color: white;
-                    border-radius: var(--radius-sm);
-                    font-size: 0.813rem;
-                }
-
-                .tag button {
-                    background: none;
-                    border: none;
-                    color: rgba(255,255,255,0.7);
-                    cursor: pointer;
-                    padding: 0 2px;
-                }
-
-                .tags-input input {
-                    flex: 1;
-                    min-width: 120px;
-                    border: none;
-                    background: transparent;
-                    color: var(--gray-100);
-                }
-
-                .toggle-switch {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing-3);
-                    cursor: pointer;
-                }
-
-                .toggle-switch input {
-                    display: none;
-                }
-
-                .toggle-slider {
-                    width: 48px;
-                    height: 24px;
-                    background: var(--gray-700);
-                    border-radius: var(--radius-full);
-                    position: relative;
-                    transition: background 0.2s ease;
-                }
-
-                .toggle-slider::after {
-                    content: '';
-                    position: absolute;
-                    width: 20px;
-                    height: 20px;
-                    background: white;
-                    border-radius: 50%;
-                    top: 2px;
-                    left: 2px;
-                    transition: transform 0.2s ease;
-                }
-
-                .toggle-switch input:checked + .toggle-slider {
-                    background: var(--primary-600);
-                }
-
-                .toggle-switch input:checked + .toggle-slider::after {
-                    transform: translateX(24px);
-                }
-
-                .toggle-label {
-                    color: var(--gray-300);
-                }
-
-                .review-sections {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: var(--spacing-4);
-                }
-
-                .review-section {
-                    padding: var(--spacing-4);
-                    background: var(--gray-800);
-                    border-radius: var(--radius-md);
-                }
-
-                .review-section h4 {
-                    margin-bottom: var(--spacing-3);
-                    color: var(--gray-200);
-                }
-
-                .review-section dl {
-                    display: grid;
-                    grid-template-columns: auto 1fr;
-                    gap: var(--spacing-2);
-                }
-
-                .review-section dt {
-                    color: var(--gray-500);
-                }
-
-                .review-section dd {
-                    color: var(--gray-100);
-                }
-
-                .review-section ul {
-                    list-style: none;
-                    margin: 0;
-                    padding: 0;
-                }
-
-                .review-section li {
-                    padding: var(--spacing-1) 0;
-                    color: var(--gray-300);
-                }
-
-                .platform-badges {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: var(--spacing-2);
-                }
-
-                .platform-badge {
-                    padding: 4px 12px;
-                    background: var(--primary-600);
-                    color: white;
-                    border-radius: var(--radius-full);
-                    font-size: 0.813rem;
-                    text-transform: capitalize;
-                }
-
-                .wizard-actions {
-                    display: flex;
-                    gap: var(--spacing-4);
-                }
-
-                .spacer {
-                    flex: 1;
-                }
-
-                @media (max-width: 768px) {
-                    .mode-cards {
-                        grid-template-columns: 1fr;
-                    }
-                    .form-grid {
-                        grid-template-columns: 1fr;
-                    }
-                    .approval-options {
-                        grid-template-columns: 1fr;
-                    }
-                    .review-sections {
-                        grid-template-columns: 1fr;
-                    }
-                }
-            `}</style>
         </div>
     );
 };

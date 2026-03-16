@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { CHART_COLORS } from '../../constants/statusColors';
 
 const icons = {
     back: (
@@ -42,7 +43,7 @@ export default function ExperimentDetail() {
     const chartData = experiment.variants.map((v, i) => ({
         name: v.name,
         rate: v.conversionRate,
-        fill: i === 0 ? '#6366f1' : '#10b981',
+        fill: i === 0 ? CHART_COLORS.primary : CHART_COLORS.success,
     }));
 
     const totalImpressions = experiment.variants.reduce((acc, v) => acc + v.impressions, 0);
@@ -117,14 +118,14 @@ export default function ExperimentDetail() {
                     <div style={{ height: '300px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} layout="vertical">
-                                <XAxis type="number" domain={[0, 'auto']} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} width={120} />
+                                <XAxis type="number" domain={[0, 'auto']} axisLine={false} tickLine={false} tick={{ fill: CHART_COLORS.muted, fontSize: 12 }} />
+                                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: CHART_COLORS.secondary, fontSize: 12 }} width={120} />
                                 <Tooltip
                                     contentStyle={{
-                                        background: '#1a1a24',
+                                        background: 'var(--color-bg-tertiary)',
                                         border: '1px solid rgba(255,255,255,0.1)',
                                         borderRadius: '8px',
-                                        color: '#f8fafc',
+                                        color: 'var(--color-text-primary)',
                                     }}
                                     formatter={(value) => [`${(value as number).toFixed(2)}%`, 'Conversion Rate']}
                                 />
@@ -210,7 +211,7 @@ export default function ExperimentDetail() {
                         <p className="text-sm text-muted">Created</p>
                         <p className="font-medium">{formatDate(experiment.createdAt)}</p>
                     </div>
-                    <div style={{ height: '2px', flex: 1, background: 'var(--glass-border)' }} />
+                    <div className="timeline-divider" />
                     <div>
                         <p className="text-sm text-muted">Started</p>
                         <p className="font-medium">{formatDate(experiment.startDate)}</p>

@@ -9,7 +9,7 @@ if (!apiKey) {
 }
 
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI?.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 // Platform-specific content guidelines
 const platformGuidelines: Record<ContentPlatform, { maxLength: number; style: string }> = {
@@ -108,7 +108,7 @@ Return ONLY the hashtags, one per line, with the # symbol.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    
+
     return text
         .split('\n')
         .map(tag => tag.trim())
@@ -190,7 +190,7 @@ Distribute posts evenly across platforms. Return ONLY valid JSON.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    
+
     // Extract JSON from response
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
@@ -198,7 +198,7 @@ Distribute posts evenly across platforms. Return ONLY valid JSON.`;
     }
 
     const posts = JSON.parse(jsonMatch[0]);
-    
+
     return posts.map((post: { title: string; content: string; platform: ContentPlatform; hashtags: string[] }) => ({
         title: post.title,
         content: post.content,
@@ -242,7 +242,72 @@ Return ONLY valid JSON.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+        throw new Error('Failed to parse AI response');
+    }
+
+    return JSON.parse(jsonMatch[0]);
+}
+
+// Analyze an imported document to extract a launch plan structure
+export async function analyzeDocumentForPlan(documentText: string): Promise<{
+    productName: string;
+    description: string;
+    phases: Array<{
+        type: 'pre_launch' | 'launch_day' | 'growth';
+        name: string;
+        description: string;
+        durationDays: number;
+        suggestedMilestones: string[];
+    }>;
+}> {
+    if (!model) {
+        throw new Error('Gemini AI is not configured.');
+    }
+
+    const prompt = `Analyze this document and extract a product launch plan structure:
+
+DOCUMENT:
+"""
+${documentText.slice(0, 15000)} // Capped to avoid token limits
+"""
+
+Provide a JSON response with:
+{
+  "productName": "Extracted or inferred product name",
+  "description": "A 2-3 sentence summary of the launch goal",
+  "phases": [
+    {
+      "type": "pre_launch",
+      "name": "Pre-Launch",
+      "description": "Brief description of this phase based on the doc",
+      "durationDays": 14,
+      "suggestedMilestones": ["Extract 3-5 specific pre-launch milestones"]
+    },
+    {
+      "type": "launch_day",
+      "name": "Launch Day",
+      "description": "Brief description of launch day activities",
+      "durationDays": 1,
+      "suggestedMilestones": ["Extract 2-4 launch day milestones"]
+    },
+    {
+      "type": "growth",
+      "name": "Growth / Post-Launch",
+      "description": "Brief description of post-launch activities",
+      "durationDays": 30,
+      "suggestedMilestones": ["Extract 3-5 post-launch milestones"]
+    }
+  ]
+}
+
+Return ONLY valid JSON matching this exact structure. Ensure you create exactly these 3 phase types: 'pre_launch', 'launch_day', and 'growth'.`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
         throw new Error('Failed to parse AI response');

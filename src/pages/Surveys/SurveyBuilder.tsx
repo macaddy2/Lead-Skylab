@@ -167,18 +167,9 @@ export default function SurveyBuilder() {
                     <div>
                         <input
                             type="text"
+                            className="survey-title-input"
                             value={survey.title}
                             onChange={(e) => setSurvey({ ...survey, title: e.target.value })}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                fontSize: 'var(--font-size-2xl)',
-                                fontWeight: 'var(--font-weight-bold)',
-                                color: 'var(--color-text-primary)',
-                                outline: 'none',
-                                width: '100%',
-                                maxWidth: '400px',
-                            }}
                         />
                         <p className="text-sm text-muted mt-1">
                             {survey.questions.length} question{survey.questions.length !== 1 ? 's' : ''}
@@ -197,7 +188,7 @@ export default function SurveyBuilder() {
             </div>
 
             {/* Tabs */}
-            <div className="tabs" style={{ maxWidth: '400px' }}>
+            <div className="tabs tabs-narrow">
                 <button className={`tab ${activeTab === 'questions' ? 'active' : ''}`} onClick={() => setActiveTab('questions')}>
                     Questions
                 </button>
@@ -229,17 +220,16 @@ export default function SurveyBuilder() {
                     {/* Questions List */}
                     <div className="flex flex-col gap-4">
                         {survey.questions.map((question, index) => (
-                            <div key={question.id} className="card" style={{ padding: 'var(--space-5)' }}>
+                            <div key={question.id} className="card card-padded-5">
                                 <div className="flex items-start gap-4">
-                                    <div style={{ color: 'var(--color-text-muted)', cursor: 'grab' }}>
+                                    <div className="drag-handle">
                                         {icons.grip}
                                     </div>
-                                    <div style={{ flex: 1 }}>
+                                    <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-3">
                                             <span className="text-sm text-muted">Q{index + 1}</span>
                                             <select
-                                                className="input"
-                                                style={{ width: '150px' }}
+                                                className="input input-narrow"
                                                 value={question.type}
                                                 onChange={(e) => updateQuestion(question.id, { type: e.target.value as SurveyQuestion['type'] })}
                                             >
@@ -270,13 +260,12 @@ export default function SurveyBuilder() {
                                             <div className="flex flex-col gap-2 ml-4">
                                                 {question.options.map((option, optIndex) => (
                                                     <div key={optIndex} className="flex items-center gap-2">
-                                                        <span style={{ width: 20, textAlign: 'center' }}>
+                                                        <span className="option-symbol">
                                                             {question.type === 'single_choice' ? '○' : '☐'}
                                                         </span>
                                                         <input
                                                             type="text"
-                                                            className="input"
-                                                            style={{ flex: 1 }}
+                                                            className="input flex-1"
                                                             value={option}
                                                             onChange={(e) => updateOption(question.id, optIndex, e.target.value)}
                                                         />
@@ -291,8 +280,7 @@ export default function SurveyBuilder() {
                                                     </div>
                                                 ))}
                                                 <button
-                                                    className="btn btn-ghost btn-sm"
-                                                    style={{ alignSelf: 'flex-start' }}
+                                                    className="btn btn-ghost btn-sm btn-align-start"
                                                     onClick={() => addOption(question.id)}
                                                 >
                                                     {icons.plus}
@@ -302,8 +290,7 @@ export default function SurveyBuilder() {
                                         )}
                                     </div>
                                     <button
-                                        className="btn btn-ghost btn-sm"
-                                        style={{ color: 'var(--color-error)' }}
+                                        className="btn btn-ghost btn-sm btn-danger-ghost"
                                         onClick={() => removeQuestion(question.id)}
                                     >
                                         {icons.trash}
@@ -324,7 +311,7 @@ export default function SurveyBuilder() {
 
             {/* Settings Tab */}
             {activeTab === 'settings' && (
-                <div className="card" style={{ padding: 'var(--space-6)', maxWidth: '600px' }}>
+                <div className="card settings-card">
                     <h3 className="font-semibold mb-6">Survey Settings</h3>
 
                     <div className="input-group mb-4">
@@ -380,73 +367,40 @@ export default function SurveyBuilder() {
                 </div>
             )}
 
-            {/* Preview Tab */}
+            {/* Preview Tab — rendered in dark app-native style */}
             {activeTab === 'preview' && (
-                <div
-                    className="card"
-                    style={{
-                        maxWidth: '600px',
-                        padding: 'var(--space-8)',
-                        background: 'white',
-                        color: '#1a1a2e',
-                    }}
-                >
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: 'var(--space-2)', color: '#1a1a2e' }}>
-                        {survey.title}
-                    </h2>
+                <div className="survey-preview">
+                    <h2>{survey.title}</h2>
                     {survey.description && (
-                        <p style={{ color: '#666', marginBottom: 'var(--space-6)' }}>{survey.description}</p>
+                        <p className="survey-preview-desc">{survey.description}</p>
                     )}
 
                     {survey.settings.showProgressBar && (
-                        <div className="progress mb-6" style={{ height: '4px' }}>
+                        <div className="progress survey-preview-progress mb-6">
                             <div className="progress-bar primary" style={{ width: '0%' }} />
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+                    <div className="survey-preview-questions">
                         {survey.questions.map((question, index) => (
                             <div key={question.id}>
-                                <p style={{ fontWeight: '500', marginBottom: 'var(--space-3)', color: '#333' }}>
+                                <p className="survey-preview-label">
                                     {index + 1}. {question.question || 'Question text'}
-                                    {question.required && <span style={{ color: '#ef4444' }}> *</span>}
+                                    {question.required && <span className="survey-preview-required"> *</span>}
                                 </p>
 
                                 {question.type === 'nps' && (
-                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                    <div className="survey-preview-nps">
                                         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                                            <button
-                                                key={n}
-                                                style={{
-                                                    width: '32px',
-                                                    height: '32px',
-                                                    border: '1px solid #ddd',
-                                                    borderRadius: '4px',
-                                                    background: 'white',
-                                                    cursor: 'pointer',
-                                                    fontSize: '12px',
-                                                }}
-                                            >
-                                                {n}
-                                            </button>
+                                            <button key={n} className="survey-preview-nps-btn">{n}</button>
                                         ))}
                                     </div>
                                 )}
 
                                 {question.type === 'rating' && (
-                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                    <div className="survey-preview-rating">
                                         {[1, 2, 3, 4, 5].map(n => (
-                                            <button
-                                                key={n}
-                                                style={{
-                                                    width: '40px',
-                                                    height: '40px',
-                                                    border: '1px solid #ddd',
-                                                    borderRadius: '4px',
-                                                    background: 'white',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
+                                            <button key={n} className="survey-preview-rating-btn">
                                                 {'⭐'.repeat(n)}
                                             </button>
                                         ))}
@@ -454,9 +408,9 @@ export default function SurveyBuilder() {
                                 )}
 
                                 {(question.type === 'single_choice' || question.type === 'multiple_choice') && question.options && (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div className="survey-preview-choices">
                                         {question.options.map((option, i) => (
-                                            <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                            <label key={i} className="survey-preview-choice">
                                                 <input type={question.type === 'single_choice' ? 'radio' : 'checkbox'} name={question.id} />
                                                 <span>{option}</span>
                                             </label>
@@ -466,15 +420,8 @@ export default function SurveyBuilder() {
 
                                 {question.type === 'open_ended' && (
                                     <textarea
+                                        className="survey-preview-textarea"
                                         placeholder="Your answer..."
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '8px',
-                                            minHeight: '100px',
-                                            fontSize: '14px',
-                                        }}
                                     />
                                 )}
                             </div>
@@ -482,19 +429,7 @@ export default function SurveyBuilder() {
                     </div>
 
                     {survey.questions.length > 0 && (
-                        <button
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                marginTop: 'var(--space-8)',
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                            }}
-                        >
+                        <button className="survey-preview-submit">
                             Submit Survey
                         </button>
                     )}
