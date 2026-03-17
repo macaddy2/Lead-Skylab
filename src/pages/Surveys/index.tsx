@@ -187,7 +187,7 @@ export default function Surveys() {
             <div className="grid grid-cols-3 mb-6">
                 <div
                     className="card"
-                    style={{ padding: 'var(--space-5)', cursor: 'pointer' }}
+                    className="p-5 cursor-pointer"
                     onClick={() => {
                         setNewSurvey({ title: 'PMF Survey', description: 'Measure product-market fit', type: 'pmf' });
                         setShowCreateModal(true);
@@ -216,7 +216,7 @@ export default function Surveys() {
 
                 <div
                     className="card"
-                    style={{ padding: 'var(--space-5)', cursor: 'pointer' }}
+                    className="p-5 cursor-pointer"
                     onClick={() => {
                         setNewSurvey({ title: 'NPS Survey', description: 'Measure customer loyalty', type: 'nps' });
                         setShowCreateModal(true);
@@ -245,7 +245,7 @@ export default function Surveys() {
 
                 <div
                     className="card"
-                    style={{ padding: 'var(--space-5)', cursor: 'pointer' }}
+                    className="p-5 cursor-pointer"
                     onClick={() => {
                         setNewSurvey({ title: '', description: '', type: 'custom' });
                         setShowCreateModal(true);
@@ -275,7 +275,7 @@ export default function Surveys() {
             </div>
 
             {/* Filters */}
-            <div className="tabs" style={{ maxWidth: '350px' }}>
+            <div className="tabs tabs--constrained-sm">
                 <button className={`tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
                     All ({surveys.length})
                 </button>
@@ -289,7 +289,7 @@ export default function Surveys() {
 
             {/* Surveys List */}
             {filteredSurveys.length > 0 ? (
-                <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
+                <div className="grid grid-cols-2 gap-6">
                     {filteredSurveys.map((survey) => {
                         const nps = calculateNPS(survey);
                         const responseCount = survey.responses.length;
@@ -300,7 +300,7 @@ export default function Surveys() {
                         ].filter(d => d.value > 0);
 
                         return (
-                            <div key={survey.id} className="card" style={{ padding: 'var(--space-6)' }}>
+                            <div key={survey.id} className="card p-6">
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
@@ -316,7 +316,7 @@ export default function Surveys() {
                                     <div className="flex gap-2">
                                         <button
                                             className="btn btn-ghost btn-sm"
-                                            style={{ color: 'var(--color-error)' }}
+                                            className="text-error"
                                             onClick={() => handleDelete(survey.id)}
                                         >
                                             {icons.trash}
@@ -324,7 +324,7 @@ export default function Surveys() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2" style={{ gap: 'var(--space-4)' }}>
+                                <div className="grid grid-cols-2 gap-4">
                                     {/* Stats */}
                                     <div
                                         className="card"

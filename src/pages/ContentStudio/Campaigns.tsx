@@ -94,7 +94,7 @@ export default function Campaigns() {
                         {icons.back}
                     </button>
                     <div>
-                        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)' }}>
+                        <h1 className="text-2xl font-bold">
                             Campaigns
                         </h1>
                         <p className="text-muted">Organize your content by campaign</p>
@@ -107,7 +107,7 @@ export default function Campaigns() {
 
             {/* Create Campaign Form */}
             {showCreate && (
-                <div className="card mb-6" style={{ padding: 'var(--space-6)' }}>
+                <div className="card mb-6" className="p-6">
                     <h3 className="font-semibold mb-4">Create New Campaign</h3>
 
                     <div className="form-group mb-4">
@@ -169,9 +169,9 @@ export default function Campaigns() {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
+                <div className="grid grid-cols-2 gap-6">
                     {contentCampaigns.map((campaign) => (
-                        <div key={campaign.id} className="card" style={{ padding: 'var(--space-6)' }}>
+                        <div key={campaign.id} className="card p-6">
                             <div className="flex items-start justify-between mb-4">
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
@@ -187,7 +187,7 @@ export default function Campaigns() {
                                 <button
                                     className="btn btn-ghost btn-sm btn-icon"
                                     onClick={() => handleDeleteCampaign(campaign.id)}
-                                    style={{ color: 'var(--color-error)' }}
+                                    className="text-error"
                                 >
                                     ×
                                 </button>

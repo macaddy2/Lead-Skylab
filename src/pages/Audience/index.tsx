@@ -116,7 +116,7 @@ export default function Audience() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-4 mb-6">
-                <div className="card metric-card primary" style={{ padding: 'var(--space-5)' }}>
+                <div className="card metric-card primary" className="p-5">
                     <div className="flex items-center justify-between mb-2">
                         <span className="metric-label">Total Leads</span>
                         <span style={{ color: 'var(--color-text-muted)', opacity: 0.7 }}>{icons.users}</span>
@@ -124,7 +124,7 @@ export default function Audience() {
                     <div className="metric-value">{totalLeads}</div>
                 </div>
 
-                <div className="card metric-card success" style={{ padding: 'var(--space-5)' }}>
+                <div className="card metric-card success" className="p-5">
                     <div className="flex items-center justify-between mb-2">
                         <span className="metric-label">Hot Leads</span>
                         <span style={{ color: 'var(--color-text-muted)', opacity: 0.7 }}>{icons.target}</span>
@@ -133,7 +133,7 @@ export default function Audience() {
                     <p className="text-xs text-muted mt-1">Score &gt; 80</p>
                 </div>
 
-                <div className="card metric-card warning" style={{ padding: 'var(--space-5)' }}>
+                <div className="card metric-card warning" className="p-5">
                     <div className="flex items-center justify-between mb-2">
                         <span className="metric-label">Warm Leads</span>
                     </div>
@@ -141,7 +141,7 @@ export default function Audience() {
                     <p className="text-xs text-muted mt-1">Score 40-80</p>
                 </div>
 
-                <div className="card metric-card secondary" style={{ padding: 'var(--space-5)' }}>
+                <div className="card metric-card secondary" className="p-5">
                     <div className="flex items-center justify-between mb-2">
                         <span className="metric-label">Cold Leads</span>
                     </div>
@@ -173,7 +173,7 @@ export default function Audience() {
                                 </div>
                                 <button
                                     className="btn btn-ghost btn-sm"
-                                    style={{ color: 'var(--color-error)' }}
+                                    className="text-error"
                                     onClick={() => handleDelete(audience.id)}
                                 >
                                     {icons.trash}

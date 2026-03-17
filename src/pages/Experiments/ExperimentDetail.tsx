@@ -71,7 +71,7 @@ export default function ExperimentDetail() {
                     </button>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)' }}>
+                            <h1 className="text-2xl font-bold">
                                 {experiment.name}
                             </h1>
                             <span className={`badge ${experiment.status === 'running' ? 'badge-success' : experiment.status === 'completed' ? 'badge-primary' : 'badge-warning'}`}>
@@ -87,19 +87,19 @@ export default function ExperimentDetail() {
 
             {/* Stats Row */}
             <div className="grid grid-cols-4 mb-6">
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Total Impressions</p>
                     <p className="text-3xl font-bold">{totalImpressions.toLocaleString()}</p>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Total Conversions</p>
                     <p className="text-3xl font-bold">{totalConversions}</p>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Confidence</p>
                     <p className="text-3xl font-bold">{significanceLevel}%</p>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Duration</p>
                     <p className="text-3xl font-bold">
                         {experiment.startDate && experiment.endDate
@@ -111,9 +111,9 @@ export default function ExperimentDetail() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
+            <div className="grid grid-cols-2 gap-6">
                 {/* Conversion Comparison */}
-                <div className="card" style={{ padding: 'var(--space-6)' }}>
+                <div className="card p-6">
                     <h3 className="font-semibold mb-6">Conversion Rate Comparison</h3>
                     <div style={{ height: '300px' }}>
                         <ResponsiveContainer width="100%" height="100%">
@@ -140,7 +140,7 @@ export default function ExperimentDetail() {
                 </div>
 
                 {/* Variant Details */}
-                <div className="card" style={{ padding: 'var(--space-6)' }}>
+                <div className="card p-6">
                     <h3 className="font-semibold mb-6">Variant Details</h3>
                     <div className="flex flex-col gap-4">
                         {experiment.variants.map((variant) => {
@@ -177,7 +177,7 @@ export default function ExperimentDetail() {
                                         )}
                                     </div>
 
-                                    <div className="grid grid-cols-3" style={{ gap: 'var(--space-4)' }}>
+                                    <div className="grid grid-cols-3 gap-4">
                                         <div>
                                             <p className="text-2xl font-bold">{variant.impressions.toLocaleString()}</p>
                                             <p className="text-xs text-muted">Impressions</p>
@@ -204,7 +204,7 @@ export default function ExperimentDetail() {
             </div>
 
             {/* Timeline */}
-            <div className="card mt-6" style={{ padding: 'var(--space-6)' }}>
+            <div className="card mt-6 p-6">
                 <h3 className="font-semibold mb-4">Experiment Timeline</h3>
                 <div className="flex items-center gap-8">
                     <div>

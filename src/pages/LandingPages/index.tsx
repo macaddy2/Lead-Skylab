@@ -113,7 +113,7 @@ export default function LandingPages() {
             </div>
 
             {/* Filters */}
-            <div className="tabs" style={{ maxWidth: '400px' }}>
+            <div className="tabs tabs--constrained">
                 <button
                     className={`tab ${filter === 'all' ? 'active' : ''}`}
                     onClick={() => setFilter('all')}
@@ -163,7 +163,7 @@ export default function LandingPages() {
                             </div>
 
                             {/* Content */}
-                            <div style={{ padding: 'var(--space-5)' }}>
+                            <div className="p-5">
                                 <h3 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-2)' }}>
                                     {page.title}
                                 </h3>
@@ -172,7 +172,7 @@ export default function LandingPages() {
                                 </p>
 
                                 {/* Stats */}
-                                <div className="grid grid-cols-3" style={{ gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
+                                <div className="grid grid-cols-3 gap-3 mb-4">
                                     <div className="text-center">
                                         <div className="text-lg font-semibold">{page.analytics.views.toLocaleString()}</div>
                                         <div className="text-xs text-muted">Views</div>
@@ -199,7 +199,7 @@ export default function LandingPages() {
                                     </Link>
                                     <button
                                         className={`btn btn-sm ${page.status === 'published' ? 'btn-ghost' : 'btn-primary'}`}
-                                        style={{ flex: 1 }}
+                                        className="flex-1"
                                         onClick={() => togglePublish(page)}
                                     >
                                         {page.status === 'published' ? 'Unpublish' : 'Publish'}
@@ -208,18 +208,18 @@ export default function LandingPages() {
 
                                 <div className="flex gap-2 mt-2">
                                     {page.status === 'published' && (
-                                        <button className="btn btn-ghost btn-sm" style={{ flex: 1 }}>
+                                        <button className="btn btn-ghost btn-sm" className="flex-1">
                                             {icons.externalLink}
                                             View
                                         </button>
                                     )}
-                                    <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => handleDuplicate(page)}>
+                                    <button className="btn btn-ghost btn-sm" className="flex-1" onClick={() => handleDuplicate(page)}>
                                         {icons.copy}
                                         Copy
                                     </button>
                                     <button
                                         className="btn btn-ghost btn-sm"
-                                        style={{ color: 'var(--color-error)' }}
+                                        className="text-error"
                                         onClick={() => handleDelete(page.id)}
                                     >
                                         {icons.trash}

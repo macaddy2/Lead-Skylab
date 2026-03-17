@@ -197,26 +197,26 @@ export default function Experiments() {
 
             {/* Stats */}
             <div className="grid grid-cols-4 mb-6">
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Total Experiments</p>
                     <p className="text-3xl font-bold">{experiments.length}</p>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Running</p>
                     <p className="text-3xl font-bold text-success">{runningCount}</p>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Completed</p>
                     <p className="text-3xl font-bold text-primary">{completedCount}</p>
                 </div>
-                <div className="card" style={{ padding: 'var(--space-5)' }}>
+                <div className="card p-5">
                     <p className="text-sm text-muted mb-1">Avg. Lift</p>
                     <p className="text-3xl font-bold">{avgLift > 0 ? '+' : ''}{avgLift.toFixed(1)}%</p>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="tabs" style={{ maxWidth: '400px' }}>
+            <div className="tabs tabs--constrained">
                 <button className={`tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
                     All
                 </button>
@@ -232,7 +232,7 @@ export default function Experiments() {
             {filteredExperiments.length > 0 ? (
                 <div className="flex flex-col gap-4">
                     {filteredExperiments.map((exp) => (
-                        <div key={exp.id} className="card" style={{ padding: 'var(--space-6)' }}>
+                        <div key={exp.id} className="card p-6">
                             <div className="flex items-start justify-between mb-4">
                                 <div>
                                     <div className="flex items-center gap-3 mb-1">
@@ -280,7 +280,7 @@ export default function Experiments() {
                                     )}
                                     <button
                                         className="btn btn-ghost btn-sm"
-                                        style={{ color: 'var(--color-error)' }}
+                                        className="text-error"
                                         onClick={() => handleDelete(exp.id)}
                                     >
                                         {icons.trash}
@@ -289,7 +289,7 @@ export default function Experiments() {
                             </div>
 
                             {/* Variants */}
-                            <div className="grid grid-cols-2" style={{ gap: 'var(--space-4)' }}>
+                            <div className="grid grid-cols-2 gap-4">
                                 {exp.variants.map((variant) => {
                                     const isWinner = exp.winner === variant.id;
                                     return (
@@ -308,7 +308,7 @@ export default function Experiments() {
                                                     <span style={{ color: 'var(--color-success)' }}>{icons.trophy}</span>
                                                 )}
                                             </div>
-                                            <div className="grid grid-cols-3" style={{ gap: 'var(--space-2)' }}>
+                                            <div className="grid grid-cols-3 gap-2">
                                                 <div className="text-center">
                                                     <div className="text-lg font-semibold">{variant.impressions.toLocaleString()}</div>
                                                     <div className="text-xs text-muted">Impressions</div>
@@ -395,7 +395,7 @@ export default function Experiments() {
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-2" style={{ gap: 'var(--space-4)' }}>
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="input-group">
                                     <label className="input-label">Variant A Name</label>
                                     <input

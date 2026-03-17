@@ -41,7 +41,12 @@ export const signIn = async (email: string, password: string) => {
 
 export const signInWithMagicLink = async (email: string) => {
     if (!isSupabaseConfigured) throw new Error('Auth requires Supabase configuration');
-    const { data, error } = await supabase.auth.signInWithOtp({ email });
+    const { data, error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+            emailRedirectTo: window.location.origin,
+        },
+    });
     if (error) throw error;
     return data;
 };

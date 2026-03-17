@@ -168,7 +168,7 @@ export default function Generator() {
                         {icons.back}
                     </button>
                     <div>
-                        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)' }}>
+                        <h1 className="text-2xl font-bold">
                             Content Generator
                         </h1>
                         <p className="text-muted">Create AI-powered marketing content</p>
@@ -184,11 +184,11 @@ export default function Generator() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
+            <div className="grid grid-cols-2 gap-6">
                 {/* Left Column - Settings */}
                 <div className="flex flex-col gap-6">
                     {/* Platform Selection */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-4">Platform</h3>
                         <div className="flex flex-wrap gap-2">
                             {platforms.map((p) => (
@@ -207,7 +207,7 @@ export default function Generator() {
                     </div>
 
                     {/* Tone Selection */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-4">Tone</h3>
                         <div className="flex flex-wrap gap-2">
                             {tones.map((t) => (
@@ -215,7 +215,7 @@ export default function Generator() {
                                     key={t}
                                     className={`btn btn-sm ${tone === t ? 'btn-primary' : 'btn-ghost'}`}
                                     onClick={() => setTone(t)}
-                                    style={{ textTransform: 'capitalize' }}
+                                    className="text-capitalize"
                                 >
                                     {t}
                                 </button>
@@ -224,7 +224,7 @@ export default function Generator() {
                     </div>
 
                     {/* Template Selection */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-4">Templates</h3>
                         {filteredTemplates.length === 0 ? (
                             <p className="text-muted text-sm">No templates for this platform yet</p>
@@ -287,7 +287,7 @@ export default function Generator() {
                 {/* Right Column - Content Editor */}
                 <div className="flex flex-col gap-6">
                     {/* Title */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-4">Title</h3>
                         <input
                             type="text"
@@ -329,13 +329,13 @@ export default function Generator() {
                     </div>
 
                     {/* Hashtags */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-4">Hashtags</h3>
                         <div className="flex gap-2 mb-4">
                             <input
                                 type="text"
                                 className="input"
-                                style={{ flex: 1 }}
+                                className="flex-1"
                                 placeholder="Add hashtag"
                                 value={hashtagInput}
                                 onChange={(e) => setHashtagInput(e.target.value)}

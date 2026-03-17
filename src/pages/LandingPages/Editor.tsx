@@ -312,7 +312,7 @@ export default function LandingPageEditor() {
             </div>
 
             {/* Tabs */}
-            <div className="tabs" style={{ maxWidth: '400px' }}>
+            <div className="tabs tabs--constrained">
                 <button className={`tab ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
                     Content
                 </button>
@@ -326,9 +326,9 @@ export default function LandingPageEditor() {
 
             {/* Content Tab */}
             {activeTab === 'content' && (
-                <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
+                <div className="grid grid-cols-2 gap-6">
                     {/* Hero Section Editor */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-6">Hero Section</h3>
 
                         <div className="input-group mb-4">
@@ -376,7 +376,7 @@ export default function LandingPageEditor() {
                     </div>
 
                     {/* Form Section Editor */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="font-semibold">Lead Capture Form</h3>
                             <button className="btn btn-ghost btn-sm" onClick={addFormField}>
@@ -421,7 +421,7 @@ export default function LandingPageEditor() {
                                             <input
                                                 type="text"
                                                 className="input"
-                                                style={{ flex: 1 }}
+                                                className="flex-1"
                                                 value={field.label}
                                                 onChange={(e) => updateFormField(field.id, { label: e.target.value })}
                                             />
@@ -446,7 +446,7 @@ export default function LandingPageEditor() {
                                             </label>
                                             <button
                                                 className="btn btn-ghost btn-sm"
-                                                style={{ color: 'var(--color-error)' }}
+                                                className="text-error"
                                                 onClick={() => removeFormField(field.id)}
                                             >
                                                 {icons.trash}
@@ -482,7 +482,7 @@ export default function LandingPageEditor() {
 
             {/* Settings Tab */}
             {activeTab === 'settings' && (
-                <div className="card" style={{ padding: 'var(--space-6)', maxWidth: '600px' }}>
+                <div className="card p-6" style={{ maxWidth: '600px' }}>
                     <h3 className="font-semibold mb-6">SEO & Settings</h3>
 
                     <div className="input-group mb-4">

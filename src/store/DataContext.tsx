@@ -21,7 +21,7 @@ import {
 
 // ─── Initial State ────────────────────────────────────────────────────────────
 
-const initialState: AppState = {
+export const initialState: AppState = {
     leads: demoLeads,
     landingPages: demoLandingPages,
     experiments: demoExperiments,
@@ -44,7 +44,7 @@ const initialState: AppState = {
 
 // ─── Reducer ──────────────────────────────────────────────────────────────────
 
-function appReducer(state: AppState, action: AppAction): AppState {
+export function appReducer(state: AppState, action: AppAction): AppState {
     switch (action.type) {
         case 'ADD_LEAD':
             return { ...state, leads: [...state.leads, action.payload] };

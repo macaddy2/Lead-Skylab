@@ -77,7 +77,7 @@ export default function Templates() {
                         {icons.back}
                     </button>
                     <div>
-                        <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)' }}>
+                        <h1 className="text-2xl font-bold">
                             Content Templates
                         </h1>
                         <p className="text-muted">Browse and use proven content templates</p>
@@ -86,7 +86,7 @@ export default function Templates() {
             </div>
 
             {/* Filters */}
-            <div className="card mb-6" style={{ padding: 'var(--space-4)' }}>
+            <div className="card mb-6 p-4">
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-muted">Category:</span>
@@ -96,7 +96,7 @@ export default function Templates() {
                                     key={cat}
                                     className={`btn btn-sm ${filterCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
                                     onClick={() => setFilterCategory(cat)}
-                                    style={{ textTransform: 'capitalize' }}
+                                    className="text-capitalize"
                                 >
                                     {cat === 'all' ? 'All' : categoryLabels[cat] || cat}
                                 </button>
@@ -120,13 +120,13 @@ export default function Templates() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2" style={{ gap: 'var(--space-6)' }}>
+            <div className="grid grid-cols-2 gap-6">
                 {/* Templates List */}
                 <div className="flex flex-col gap-4">
                     <h3 className="font-semibold">Available Templates ({filteredTemplates.length})</h3>
 
                     {filteredTemplates.length === 0 ? (
-                        <div className="card" style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+                        <div className="card p-8 text-center">
                             <p className="text-muted">No templates match your filters</p>
                         </div>
                     ) : (
@@ -150,7 +150,7 @@ export default function Templates() {
                                 </div>
                                 <p className="text-sm text-muted">{template.description}</p>
                                 <div className="flex gap-2 mt-2">
-                                    <span className="badge" style={{ textTransform: 'capitalize' }}>
+                                    <span className="badge" className="text-capitalize">
                                         {categoryLabels[template.category] || template.category}
                                     </span>
                                 </div>
@@ -164,12 +164,12 @@ export default function Templates() {
                     <h3 className="font-semibold">Preview</h3>
 
                     {!selectedTemplateData ? (
-                        <div className="card" style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+                        <div className="card p-8 text-center">
                             <p className="text-muted">Select a template to preview</p>
                         </div>
                     ) : (
                         <>
-                            <div className="card" style={{ padding: 'var(--space-6)' }}>
+                            <div className="card p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h4 className="font-semibold">{selectedTemplateData.name}</h4>
                                     <div className="flex gap-2">
@@ -207,7 +207,7 @@ export default function Templates() {
                                 </div>
                             </div>
 
-                            <div className="card" style={{ padding: 'var(--space-6)' }}>
+                            <div className="card p-6">
                                 <p className="text-sm text-muted mb-2">Example Output:</p>
                                 <div
                                     style={{

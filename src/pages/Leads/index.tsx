@@ -307,7 +307,7 @@ export default function Leads() {
                     </select>
 
                     {selectedLeads.length > 0 && (
-                        <button className="btn btn-ghost" style={{ color: 'var(--color-error)' }} onClick={handleBulkDelete}>
+                        <button className="btn btn-ghost" className="text-error" onClick={handleBulkDelete}>
                             {icons.trash}
                             Delete ({selectedLeads.length})
                         </button>
@@ -315,7 +315,7 @@ export default function Leads() {
                 </div>
 
                 {/* View Toggle */}
-                <div className="tabs" style={{ width: 'auto', marginBottom: 0 }}>
+                <div className="tabs tabs--compact">
                     <button
                         className={`tab ${viewMode === 'table' ? 'active' : ''}`}
                         onClick={() => setViewMode('table')}
@@ -377,7 +377,7 @@ export default function Leads() {
                                         />
                                     </td>
                                     <td>
-                                        <Link to={`/leads/${lead.id}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`/leads/${lead.id}`} className="link-unstyled">
                                             <div className="flex items-center gap-3">
                                                 <div className="avatar avatar-sm">
                                                     {lead.name.charAt(0).toUpperCase()}
@@ -416,7 +416,7 @@ export default function Leads() {
                                             </Link>
                                             <button
                                                 className="btn btn-ghost btn-sm"
-                                                style={{ color: 'var(--color-error)' }}
+                                                className="text-error"
                                                 onClick={() => handleDeleteLead(lead.id)}
                                             >
                                                 {icons.trash}
@@ -467,7 +467,7 @@ export default function Leads() {
                                                 opacity: draggedLeadId === lead.id ? 0.4 : 1,
                                             }}
                                         >
-                                            <Link to={`/leads/${lead.id}`} style={{ textDecoration: 'none' }}>
+                                            <Link to={`/leads/${lead.id}`} className="link-unstyled">
                                                 <div className="kanban-card">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <div className="avatar avatar-sm">{lead.name.charAt(0)}</div>

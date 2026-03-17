@@ -158,7 +158,7 @@ export default function LeadDetail() {
                             {formData.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                            <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)' }}>
+                            <h1 className="text-2xl font-bold">
                                 {formData.name}
                             </h1>
                             <div className="flex items-center gap-3 mt-1">
@@ -181,13 +181,13 @@ export default function LeadDetail() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-3" style={{ gap: 'var(--space-6)' }}>
+            <div className="grid grid-cols-3 gap-6">
                 {/* Main Info */}
                 <div style={{ gridColumn: 'span 2' }}>
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-6">Lead Information</h3>
 
-                        <div className="grid grid-cols-2" style={{ gap: 'var(--space-4)' }}>
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="input-group">
                                 <label className="input-label">Full Name</label>
                                 <input
@@ -272,7 +272,7 @@ export default function LeadDetail() {
                     </div>
 
                     {/* Tags */}
-                    <div className="card mt-6" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card mt-6 p-6">
                         <h3 className="font-semibold mb-4">Tags</h3>
 
                         <div className="flex flex-wrap gap-2 mb-4">
@@ -292,7 +292,7 @@ export default function LeadDetail() {
                                 value={newTag}
                                 onChange={(e) => setNewTag(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-                                style={{ flex: 1 }}
+                                className="flex-1"
                             />
                             <button className="btn btn-secondary" onClick={handleAddTag}>
                                 {icons.plus}
@@ -305,7 +305,7 @@ export default function LeadDetail() {
                 {/* Sidebar */}
                 <div>
                     {/* Quick Info */}
-                    <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card p-6">
                         <h3 className="font-semibold mb-4">Quick Info</h3>
 
                         <div className="flex flex-col gap-4">
@@ -335,7 +335,7 @@ export default function LeadDetail() {
                     </div>
 
                     {/* Score Breakdown */}
-                    <div className="card mt-6" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card mt-6 p-6">
                         <h3 className="font-semibold mb-4">Lead Score</h3>
 
                         <div className="text-center mb-4">
@@ -364,7 +364,7 @@ export default function LeadDetail() {
                     </div>
 
                     {/* Timeline */}
-                    <div className="card mt-6" style={{ padding: 'var(--space-6)' }}>
+                    <div className="card mt-6 p-6">
                         <h3 className="font-semibold mb-4">Activity</h3>
 
                         <div className="flex flex-col gap-4">
