@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import type { LeadStage, LeadSource } from '../../types';
+import { formatDateLong, getScoreColor, stageColors } from '../../lib/format';
 
 const icons = {
     back: (
@@ -58,15 +59,6 @@ const icons = {
     ),
 };
 
-const stageColors: Record<LeadStage, string> = {
-    new: 'badge-info',
-    contacted: 'badge-primary',
-    qualified: 'badge-success',
-    proposal: 'badge-warning',
-    negotiation: 'badge-primary',
-    won: 'badge-success',
-    lost: 'badge-error',
-};
 
 const stages: LeadStage[] = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won', 'lost'];
 const sources: LeadSource[] = ['landing_page', 'referral', 'organic', 'social', 'email', 'paid_ad', 'direct', 'other'];
@@ -124,22 +116,6 @@ export default function LeadDetail() {
 
     const handleRemoveTag = (tag: string) => {
         setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) });
-    };
-
-    const getScoreColor = (score: number) => {
-        if (score >= 80) return 'var(--color-success)';
-        if (score >= 50) return 'var(--color-warning)';
-        return 'var(--color-text-muted)';
-    };
-
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
     };
 
     return (
@@ -372,7 +348,7 @@ export default function LeadDetail() {
                                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-success)', marginTop: 6 }} />
                                 <div>
                                     <p className="text-sm">Lead created</p>
-                                    <p className="text-xs text-muted">{formatDate(lead.createdAt)}</p>
+                                    <p className="text-xs text-muted">{formatDateLong(lead.createdAt)}</p>
                                 </div>
                             </div>
 
@@ -381,7 +357,7 @@ export default function LeadDetail() {
                                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-info)', marginTop: 6 }} />
                                     <div>
                                         <p className="text-sm">Last updated</p>
-                                        <p className="text-xs text-muted">{formatDate(lead.updatedAt)}</p>
+                                        <p className="text-xs text-muted">{formatDateLong(lead.updatedAt)}</p>
                                     </div>
                                 </div>
                             )}

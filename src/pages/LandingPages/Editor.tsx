@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { useToast } from '../../components/ui/Toast';
@@ -107,6 +107,11 @@ export default function LandingPageEditor() {
     const [isSaving, setIsSaving] = useState(false);
     const [previewFormData, setPreviewFormData] = useState<Record<string, string>>({});
     const [previewFormSubmitted, setPreviewFormSubmitted] = useState(false);
+    const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+    useEffect(() => {
+        return () => timersRef.current.forEach(clearTimeout);
+    }, []);
 
     const handleSave = () => {
         setIsSaving(true);
@@ -118,12 +123,12 @@ export default function LandingPageEditor() {
             dispatch({ type: 'ADD_LANDING_PAGE', payload: updatedPage });
         }
 
-        setTimeout(() => {
+        timersRef.current.push(setTimeout(() => {
             setIsSaving(false);
             if (!existingPage) {
                 navigate(`/pages/${page.id}`);
             }
-        }, 500);
+        }, 500));
     };
 
     const getHeroContent = (): HeroContent => {
@@ -246,7 +251,7 @@ export default function LandingPageEditor() {
         addToast('success', `Lead "${name}" created from form submission`);
 
         // Reset after 3 seconds
-        setTimeout(() => setPreviewFormSubmitted(false), 3000);
+        timersRef.current.push(setTimeout(() => setPreviewFormSubmitted(false), 3000));
     };
 
     const heroContent = getHeroContent();

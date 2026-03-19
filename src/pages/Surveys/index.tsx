@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { useToast } from '../../components/ui/Toast';
@@ -48,10 +48,10 @@ export default function Surveys() {
         type: 'pmf' as Survey['type'],
     });
 
-    const filteredSurveys = surveys.filter((survey) => {
+    const filteredSurveys = useMemo(() => surveys.filter((survey) => {
         if (filter === 'all') return true;
         return survey.status === filter;
-    });
+    }), [surveys, filter]);
 
     const handleCreate = () => {
         if (!newSurvey.title) return;
@@ -149,7 +149,7 @@ export default function Surveys() {
     };
 
     // Calculate NPS for a survey
-    const calculateNPS = (survey: Survey) => {
+    const calculateNPS = useCallback((survey: Survey) => {
         const npsResponses = survey.responses
             .map(r => r.answers.find(a => {
                 const q = survey.questions.find(q => q.id === a.questionId);
@@ -167,7 +167,7 @@ export default function Surveys() {
         const score = Math.round(((promoters - detractors) / total) * 100);
 
         return { score, promoters, passives, detractors };
-    };
+    }, []);
 
     return (
         <div className="animate-fadeIn">

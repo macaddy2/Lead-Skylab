@@ -4,6 +4,7 @@ import { useData } from '../../store/DataContext';
 import { useToast } from '../../components/ui/Toast';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import type { Lead, LeadStage, LeadSource } from '../../types';
+import { formatDateShort, getScoreColor, stageColors } from '../../lib/format';
 import { v4 as uuidv4 } from 'uuid';
 
 const icons = {
@@ -61,16 +62,6 @@ const icons = {
             <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
     ),
-};
-
-const stageColors: Record<LeadStage, string> = {
-    new: 'badge-info',
-    contacted: 'badge-primary',
-    qualified: 'badge-success',
-    proposal: 'badge-warning',
-    negotiation: 'badge-primary',
-    won: 'badge-success',
-    lost: 'badge-error',
 };
 
 const sourceLabels: Record<LeadSource, string> = {
@@ -181,6 +172,7 @@ export default function Leads() {
         a.href = url;
         a.download = 'leads.csv';
         a.click();
+        URL.revokeObjectURL(url);
     };
 
     // Kanban drag-and-drop handlers
@@ -236,19 +228,6 @@ export default function Leads() {
         setDraggedLeadId(null);
         setDragOverStage(null);
     }, [draggedLeadId, leads, dispatch, addToast]);
-
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-        });
-    };
-
-    const getScoreColor = (score: number) => {
-        if (score >= 80) return 'var(--color-success)';
-        if (score >= 50) return 'var(--color-warning)';
-        return 'var(--color-text-muted)';
-    };
 
     // Kanban data
     const stages: LeadStage[] = ['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won'];
@@ -408,7 +387,7 @@ export default function Leads() {
                                             <span style={{ fontWeight: 'var(--font-weight-medium)' }}>{lead.score}</span>
                                         </div>
                                     </td>
-                                    <td className="text-muted">{formatDate(lead.createdAt)}</td>
+                                    <td className="text-muted">{formatDateShort(lead.createdAt)}</td>
                                     <td>
                                         <div className="flex gap-1">
                                             <Link to={`/leads/${lead.id}`} className="btn btn-ghost btn-sm">
