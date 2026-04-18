@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { getContentStatusColor } from '../../constants/statusColors';
@@ -69,13 +69,13 @@ const ContentQueue: React.FC = () => {
         const icons: Record<string, string> = {
             twitter: 'ð•',
             linkedin: 'in',
-            instagram: 'ðŸ“¸',
-            tiktok: 'â™ª',
-            reddit: 'ðŸ”´',
+            instagram: '📸',
+            tiktok: '♪',
+            reddit: '🔴',
             facebook: 'f',
-            email: 'ðŸ“§',
+            email: '📧',
         };
-        return icons[platform] || 'ðŸ“„';
+        return icons[platform] || '📄';
     };
 
     const groupedByDate = filteredItems.reduce((acc, item) => {
@@ -91,8 +91,8 @@ const ContentQueue: React.FC = () => {
         <div className="content-queue">
             <div className="queue-header">
                 <div className="header-left">
-                    <Link to="/autopilot" className="back-link">â† Back</Link>
-                    <h1>ðŸ“¤ Content Queue</h1>
+                    <Link to="/autopilot" className="back-link">← Back</Link>
+                    <h1>📤 Content Queue</h1>
                     {planIdFilter && (
                         <span className="plan-filter">
                             for {getPlanName(planIdFilter)}
@@ -102,7 +102,7 @@ const ContentQueue: React.FC = () => {
                 <div className="header-actions">
                     {selectedItems.length > 0 && (
                         <button className="btn btn-primary" onClick={handleBulkApprove}>
-                            âœ“ Approve Selected ({selectedItems.length})
+                            ✓ Approve Selected ({selectedItems.length})
                         </button>
                     )}
                 </div>
@@ -137,7 +137,7 @@ const ContentQueue: React.FC = () => {
             <div className="queue-content">
                 {sortedDates.length === 0 ? (
                     <div className="empty-state glass-card">
-                        <div className="empty-icon">ðŸ“­</div>
+                        <div className="empty-icon">📭</div>
                         <h3>No Content in Queue</h3>
                         <p>Generate content from your launch plans to see items here</p>
                         <Link to="/autopilot" className="btn btn-primary">
@@ -194,8 +194,8 @@ const ContentQueue: React.FC = () => {
                                             </div>
                                             <p className="item-body">{item.content.content.substring(0, 150)}...</p>
                                             <div className="item-meta">
-                                                <span>â° {item.scheduledTime}</span>
-                                                <span>ðŸ“‹ {getPlanName(item.planId)}</span>
+                                                <span>⏰ {item.scheduledTime}</span>
+                                                <span>📋 {getPlanName(item.planId)}</span>
                                                 <span className="platform-name">{item.content.platform}</span>
                                             </div>
                                         </div>
@@ -205,13 +205,13 @@ const ContentQueue: React.FC = () => {
                                                     className="btn btn-sm btn-success"
                                                     onClick={() => handleApprove(item.id)}
                                                 >
-                                                    âœ“
+                                                    ✓
                                                 </button>
                                                 <button
                                                     className="btn btn-sm btn-ghost"
                                                     onClick={() => handleReject(item.id)}
                                                 >
-                                                    âœ—
+                                                    ✗
                                                 </button>
                                             </div>
                                         )}

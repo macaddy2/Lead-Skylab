@@ -110,7 +110,8 @@ export default function LandingPageEditor() {
     const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
     useEffect(() => {
-        return () => timersRef.current.forEach(clearTimeout);
+        const timers = timersRef.current;
+        return () => timers.forEach(clearTimeout);
     }, []);
 
     const handleSave = () => {

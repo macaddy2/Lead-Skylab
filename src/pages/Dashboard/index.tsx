@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import {
@@ -47,6 +47,12 @@ function MetricCard({ label, value, trend, icon, variant = 'primary' }: MetricCa
 export default function Dashboard() {
     const { state } = useData();
     const { leads, activities, experiments, landingPages, surveys } = state;
+    // Capture "now" once per render cycle so derived calculations are pure.
+    const [now, setNow] = useState(() => Date.now());
+    useEffect(() => {
+        const id = setInterval(() => setNow(Date.now()), 60_000);
+        return () => clearInterval(id);
+    }, []);
 
     const computedMetrics = useMemo(() => {
         const totalLeads = leads.length;
@@ -103,7 +109,6 @@ export default function Dashboard() {
     }, [leads]);
 
     const retentionData = useMemo(() => {
-        const now = Date.now();
         const weeks = Array.from({ length: 8 }, (_, i) => {
             const weekStart = now - (i + 1) * 7 * 24 * 60 * 60 * 1000;
             const weekEnd = now - i * 7 * 24 * 60 * 60 * 1000;
@@ -119,7 +124,7 @@ export default function Dashboard() {
             return { week: `W${i + 1}`, retention: Math.max(0, retention) };
         });
         return weeks.reverse();
-    }, [leads]);
+    }, [leads, now]);
 
     const revenueData = useMemo(() => {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -148,7 +153,7 @@ export default function Dashboard() {
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 
     const timeAgo = (timestamp: string) => {
-        const diffMs = Date.now() - new Date(timestamp).getTime();
+        const diffMs = now - new Date(timestamp).getTime();
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);

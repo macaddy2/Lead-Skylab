@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getDefaultPreferences } from '../../types';
 import type { OwnerPreferences, ContentPlatform, ContentTone } from '../../types';
@@ -59,20 +59,20 @@ const Preferences: React.FC = () => {
     return (
         <div className="preferences-page">
             <div className="page-header">
-                <Link to="/autopilot" className="back-link">â† Back</Link>
-                <h1>âš™ï¸ Owner Preferences</h1>
+                <Link to="/autopilot" className="back-link">← Back</Link>
+                <h1>⚙️ Owner Preferences</h1>
                 <button
                     className={`btn btn-primary ${saved ? 'btn-success' : ''}`}
                     onClick={handleSave}
                 >
-                    {saved ? 'âœ“ Saved!' : 'Save Preferences'}
+                    {saved ? '✓ Saved!' : 'Save Preferences'}
                 </button>
             </div>
 
             <div className="preferences-grid">
                 {/* Platforms */}
                 <section className="pref-section glass-card">
-                    <h2>ðŸŽ¯ Enabled Platforms</h2>
+                    <h2>🎯 Enabled Platforms</h2>
                     <p className="section-desc">Select which platforms to include in your content strategy</p>
                     <div className="platform-grid">
                         {platforms.map(platform => (
@@ -83,12 +83,12 @@ const Preferences: React.FC = () => {
                             >
                                 <span className="platform-icon">
                                     {platform === 'twitter' && 'ð•'}
-                                    {platform === 'linkedin' && 'ðŸ”—'}
-                                    {platform === 'instagram' && 'ðŸ“¸'}
-                                    {platform === 'tiktok' && 'â™ª'}
-                                    {platform === 'reddit' && 'ðŸ”´'}
+                                    {platform === 'linkedin' && '🔗'}
+                                    {platform === 'instagram' && '📸'}
+                                    {platform === 'tiktok' && '♪'}
+                                    {platform === 'reddit' && '🔴'}
                                     {platform === 'facebook' && 'f'}
-                                    {platform === 'email' && 'ðŸ“§'}
+                                    {platform === 'email' && '📧'}
                                 </span>
                                 <span className="platform-name">{platform}</span>
                             </button>
@@ -98,7 +98,7 @@ const Preferences: React.FC = () => {
 
                 {/* Posting Frequency */}
                 <section className="pref-section glass-card">
-                    <h2>ðŸ“… Posting Frequency</h2>
+                    <h2>📅 Posting Frequency</h2>
                     <p className="section-desc">Posts per day for each platform</p>
                     <div className="frequency-list">
                         {preferences.enabledPlatforms.map(platform => (
@@ -131,7 +131,7 @@ const Preferences: React.FC = () => {
 
                 {/* Tone by Platform */}
                 <section className="pref-section glass-card">
-                    <h2>ðŸŽ­ Voice & Tone</h2>
+                    <h2>🎭 Voice & Tone</h2>
                     <p className="section-desc">Set the tone for each platform</p>
                     <div className="tone-list">
                         {preferences.enabledPlatforms.map(platform => (
@@ -152,7 +152,7 @@ const Preferences: React.FC = () => {
 
                 {/* Approval Workflow */}
                 <section className="pref-section glass-card">
-                    <h2>âœ… Approval Workflow</h2>
+                    <h2>✅ Approval Workflow</h2>
                     <p className="section-desc">How do you want to review content?</p>
                     <div className="approval-options">
                         {[
@@ -178,13 +178,13 @@ const Preferences: React.FC = () => {
 
                 {/* Content Pillars */}
                 <section className="pref-section glass-card full-width">
-                    <h2>ðŸ“ Content Pillars</h2>
+                    <h2>📝 Content Pillars</h2>
                     <p className="section-desc">Define your main content themes</p>
                     <div className="tags-container">
                         {preferences.contentPillars.map((pillar, i) => (
                             <span key={i} className="tag">
                                 {pillar}
-                                <button onClick={() => removeTag('contentPillars', i)}>Ã—</button>
+                                <button onClick={() => removeTag('contentPillars', i)}>×</button>
                             </span>
                         ))}
                         <input
@@ -202,12 +202,12 @@ const Preferences: React.FC = () => {
 
                 {/* Keywords */}
                 <section className="pref-section glass-card">
-                    <h2>ðŸ”‘ Keywords</h2>
+                    <h2>🔑 Keywords</h2>
                     <div className="tags-container">
                         {preferences.keywords.map((kw, i) => (
                             <span key={i} className="tag tag-secondary">
                                 {kw}
-                                <button onClick={() => removeTag('keywords', i)}>Ã—</button>
+                                <button onClick={() => removeTag('keywords', i)}>×</button>
                             </span>
                         ))}
                         <input
@@ -225,14 +225,14 @@ const Preferences: React.FC = () => {
 
                 {/* Words to Use / Avoid */}
                 <section className="pref-section glass-card">
-                    <h2>ðŸ’¬ Brand Voice</h2>
+                    <h2>💬 Brand Voice</h2>
                     <div className="voice-group">
                         <label>Words to use:</label>
                         <div className="tags-container small">
                             {preferences.wordsToUse.map((word, i) => (
                                 <span key={i} className="tag tag-success">
                                     {word}
-                                    <button onClick={() => removeTag('wordsToUse', i)}>Ã—</button>
+                                    <button onClick={() => removeTag('wordsToUse', i)}>×</button>
                                 </span>
                             ))}
                             <input
@@ -253,7 +253,7 @@ const Preferences: React.FC = () => {
                             {preferences.wordsToAvoid.map((word, i) => (
                                 <span key={i} className="tag tag-danger">
                                     {word}
-                                    <button onClick={() => removeTag('wordsToAvoid', i)}>Ã—</button>
+                                    <button onClick={() => removeTag('wordsToAvoid', i)}>×</button>
                                 </span>
                             ))}
                             <input

@@ -1086,9 +1086,9 @@ tr:hover td {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--gray-950);
-  color: var(--gray-400);
-  gap: var(--spacing-4);
+  background: var(--color-bg-primary);
+  color: var(--color-text-muted);
+  gap: var(--space-4);
 }
 
 .page-loader {
@@ -1479,22 +1479,12 @@ tr:hover td {
 }
 
 /* =============================================
-   Loading Screen
+   Loading Spinner (utility used by .loading-screen)
    ============================================= */
-.loading-screen {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-primary);
-  color: var(--gray-400);
-}
-
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--gray-700);
+  border: 3px solid var(--color-bg-tertiary);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -3379,6 +3369,44 @@ tr:hover td {
   max-width: 400px;
 }
 
+/* Header Search as Button (opens command palette) */
+.header-search--button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.header-search--button:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}
+
+.header-search--button .header-search-icon {
+  position: static;
+  transform: none;
+  flex-shrink: 0;
+}
+
+.header-search-placeholder {
+  flex: 1;
+}
+
+.header-search--button .header-search-kbd {
+  position: static;
+  transform: none;
+}
+
 .header-search-icon {
   position: absolute;
   left: var(--space-4);
@@ -3677,4 +3705,120 @@ tr:hover td {
 /* Chart container */
 .chart-300 {
   height: 300px;
+}
+
+/* =============================================
+   Command Palette (Cmd+K)
+   ============================================= */
+.command-palette-overlay {
+  align-items: flex-start;
+  padding-top: 18vh;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+@keyframes paletteIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.command-palette-overlay > [role="dialog"] {
+  animation: paletteIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =============================================
+   Toast slide-in animation
+   ============================================= */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =============================================
+   Focus visibility (a11y polish)
+   ============================================= */
+:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: var(--color-primary-light);
+}
+
+/* =============================================
+   Skip link (a11y) — visible only on focus
+   ============================================= */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: var(--space-2);
+  z-index: 9999;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.skip-link:focus {
+  left: var(--space-2);
+}
+
+/* =============================================
+   Smoother scrollbar (webkit)
+   ============================================= */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-600);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* =============================================
+   Reduced motion
+   ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

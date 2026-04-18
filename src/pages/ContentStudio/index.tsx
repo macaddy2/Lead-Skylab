@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import type { ContentPiece, ContentPlatform } from '../../types';
@@ -282,7 +282,7 @@ export default function ContentStudio() {
                 <div className="quick-create-panel">
                     <div className="quick-create-header">
                         <h3>Quick Create</h3>
-                        <button className="btn-close" onClick={() => setShowQuickCreate(false)}>Ã—</button>
+                        <button className="btn-close" onClick={() => setShowQuickCreate(false)}>×</button>
                     </div>
                     <div className="platform-selector">
                         {(Object.keys(platformIcons) as ContentPlatform[]).map((platform) => (
@@ -416,9 +416,9 @@ export default function ContentStudio() {
                     <div className="empty-state">
                         <div className="empty-illustration">
                             <div className="empty-sparkles">
-                                <span className="sparkle s1">âœ¦</span>
-                                <span className="sparkle s2">âœ¦</span>
-                                <span className="sparkle s3">âœ¦</span>
+                                <span className="sparkle s1">✦</span>
+                                <span className="sparkle s2">✦</span>
+                                <span className="sparkle s3">✦</span>
                             </div>
                             <div className="empty-icon">{icons.sparkle}</div>
                         </div>

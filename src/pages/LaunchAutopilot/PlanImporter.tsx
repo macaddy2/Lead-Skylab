@@ -139,25 +139,14 @@ export default function PlanImporter() {
     const [error, setError] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
 
-    // Drag & Drop
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleDragLeave = useCallback(() => setIsDragging(false), []);
-
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file) handleFile(file);
-    }, []);
-
-    const handleFile = async (file: File) => {
+    const handleFile = useCallback(async (file: File) => {
         const allowed = ['text/plain', 'text/markdown', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         if (!allowed.some(t => file.type === t) && !file.name.match(/\.(txt|md|pdf|docx)$/i)) {
             setError('Unsupported file type. Please upload a .txt, .md, .pdf, or .docx file.');
+            return;
+        }
+        if (!GEMINI_API_KEY) {
+            setError('Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.');
             return;
         }
         setUploadedFile(file);
@@ -173,7 +162,22 @@ export default function PlanImporter() {
             setError(`Failed to parse plan: ${err instanceof Error ? err.message : 'Unknown error'}`);
             setStep('upload');
         }
-    };
+    }, []);
+
+    // Drag & Drop
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback(() => setIsDragging(false), []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+    }, [handleFile]);
 
     const toggleApprove = (id: string) => {
         if (!extractedPlan) return;

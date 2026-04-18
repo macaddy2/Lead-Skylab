@@ -74,6 +74,11 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
+  if (!open) return null;
+  return <CommandPaletteBody onClose={onClose} />;
+}
+
+function CommandPaletteBody({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -128,7 +133,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
     return items;
   }, [state.leads, state.landingPages, state.experiments, state.surveys]);
 
-  // Filter results
+  // Filter results — derived from query/state, no effect needed
   const results = useMemo(() => {
     if (!query.trim()) return navItems;
     const q = query.toLowerCase();
@@ -139,27 +144,24 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
     ).slice(0, 12);
   }, [query, allItems]);
 
-  // Reset selection when results change
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [results]);
+  // Clamp selectedIndex to current result range during render (pure derivation,
+  // avoids setState-in-effect cascading renders).
+  const safeSelectedIndex = Math.min(selectedIndex, Math.max(0, results.length - 1));
 
-  // Focus input on open
+  // Focus input on mount (component is only mounted while the palette is open,
+  // so query/selectedIndex are reset by virtue of fresh state).
   useEffect(() => {
-    if (open) {
-      setQuery('');
-      setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
-  }, [open]);
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
+  }, []);
 
-  // Scroll selected item into view
+  // Scroll selected item into view (synchronizing with the DOM)
   useEffect(() => {
     if (listRef.current) {
-      const selected = listRef.current.children[selectedIndex] as HTMLElement;
+      const selected = listRef.current.children[safeSelectedIndex] as HTMLElement | undefined;
       selected?.scrollIntoView({ block: 'nearest' });
     }
-  }, [selectedIndex]);
+  }, [safeSelectedIndex]);
 
   const handleSelect = useCallback((result: SearchResult) => {
     navigate(result.path);
@@ -178,8 +180,8 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
         break;
       case 'Enter':
         e.preventDefault();
-        if (results[selectedIndex]) {
-          handleSelect(results[selectedIndex]);
+        if (results[safeSelectedIndex]) {
+          handleSelect(results[safeSelectedIndex]);
         }
         break;
       case 'Escape':
@@ -188,14 +190,11 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
   };
 
-  if (!open) return null;
-
   return (
     <div
-      className="modal-overlay"
+      className="modal-overlay command-palette-overlay"
       onClick={onClose}
       role="presentation"
-      style={{ alignItems: 'flex-start', paddingTop: '20vh' }}
     >
       <div
         role="dialog"
@@ -234,7 +233,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search leads, pages, experiments..."
             aria-label="Search"
-            aria-activedescendant={results[selectedIndex]?.id}
+            aria-activedescendant={results[safeSelectedIndex]?.id}
             style={{
               flex: 1,
               background: 'transparent',
@@ -279,7 +278,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
                 key={result.id}
                 id={result.id}
                 role="option"
-                aria-selected={index === selectedIndex}
+                aria-selected={index === safeSelectedIndex}
                 onClick={() => handleSelect(result)}
                 style={{
                   display: 'flex',
@@ -288,7 +287,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
                   padding: 'var(--space-3) var(--space-4)',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
-                  background: index === selectedIndex ? 'var(--glass-hover)' : 'transparent',
+                  background: index === safeSelectedIndex ? 'var(--glass-hover)' : 'transparent',
                   transition: 'background 0.1s',
                 }}
                 onMouseEnter={() => setSelectedIndex(index)}
