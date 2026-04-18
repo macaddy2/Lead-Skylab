@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { STAT_STYLES } from '../../constants/statusColors';
@@ -247,7 +247,7 @@ const LaunchAutopilotDashboard: React.FC = () => {
                                 <p>{template.description}</p>
                                 <div className="template-meta">
                                     <span>{template.defaultPhases.length} phases</span>
-                                    <span className="meta-dot">â€¢</span>
+                                    <span className="meta-dot">•</span>
                                     <span>~{template.estimatedDuration} days</span>
                                 </div>
                             </div>

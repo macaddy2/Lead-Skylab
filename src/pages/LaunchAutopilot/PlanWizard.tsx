@@ -1,8 +1,8 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 import { v4 as uuidv4 } from 'uuid';
-import type { LaunchPlan, PlanInputMode, LaunchPhase } from '../../types';
+import type { LaunchPlan, PlanInputMode, LaunchPhase, LaunchPhaseType, ContentPlatform, ContentTone } from '../../types';
 import { getDefaultPreferences } from '../../types';
 
 type WizardStep = 'mode' | 'details' | 'phases' | 'preferences' | 'review';
@@ -76,7 +76,7 @@ const PlanWizard: React.FC = () => {
 
                 if (analysis.phases && analysis.phases.length > 0) {
                     setPhases(analysis.phases.map((p) => ({
-                        type: p.type as any,
+                        type: p.type as LaunchPhaseType,
                         name: p.name,
                         description: p.description,
                         startDate: '',
@@ -145,17 +145,23 @@ const PlanWizard: React.FC = () => {
                     valueProps: [],
                     targetAudience: 'anyone',
                     keywords: [],
-                    tone: 'professional' as any,
+                    tone: 'professional' as ContentTone,
                     competitors: [],
                     createdAt: now,
                     updatedAt: now,
                 };
 
+                const platforms = preferences.enabledPlatforms as ContentPlatform[];
+                const toneByPlatform = platforms.reduce<Record<ContentPlatform, ContentTone>>(
+                    (acc, p) => ({ ...acc, [p]: 'professional' }),
+                    {} as Record<ContentPlatform, ContentTone>
+                );
+
                 const draftContent = await generateLaunchContent({
                     productProfile: mockProfile,
                     launchDate: launchDate || now,
-                    platforms: preferences.enabledPlatforms as any,
-                    toneByPlatform: preferences.enabledPlatforms.reduce((acc, p) => ({ ...acc, [p]: 'professional' }), {} as any),
+                    platforms,
+                    toneByPlatform,
                     contentPillars: preferences.contentPillars.length > 0 ? preferences.contentPillars : ['general'],
                     phase: 'pre_launch',
                     count: 3
@@ -165,12 +171,16 @@ const PlanWizard: React.FC = () => {
                     dispatch({
                         type: 'ADD_CONTENT',
                         payload: {
-                            ...c,
                             id: uuidv4(),
+                            title: c.title ?? 'Untitled',
+                            content: c.content ?? '',
+                            platform: c.platform ?? 'twitter',
+                            tone: c.tone ?? 'professional',
+                            hashtags: c.hashtags ?? [],
                             status: 'draft',
                             createdAt: now,
                             updatedAt: now,
-                        } as any
+                        }
                     });
                 });
             }
@@ -221,7 +231,7 @@ const PlanWizard: React.FC = () => {
                                 className="mode-card glass-card hover-lift"
                                 onClick={() => handleModeSelect('import')}
                             >
-                                <span className="mode-icon">ðŸ“„</span>
+                                <span className="mode-icon">📄</span>
                                 <h3>Import Document</h3>
                                 <p>Paste an existing launch plan, PRD, or marketing doc. AI will extract phases and content ideas.</p>
                             </button>
@@ -230,7 +240,7 @@ const PlanWizard: React.FC = () => {
                                 className="mode-card glass-card hover-lift"
                                 onClick={() => handleModeSelect('ai_analyze')}
                             >
-                                <span className="mode-icon">ðŸ¤–</span>
+                                <span className="mode-icon">🤖</span>
                                 <h3>AI Analyze</h3>
                                 <p>Enter your product URL and social handles. AI will analyze and create a tailored plan.</p>
                             </button>
@@ -239,7 +249,7 @@ const PlanWizard: React.FC = () => {
                                 className="mode-card glass-card hover-lift"
                                 onClick={() => handleModeSelect('manual')}
                             >
-                                <span className="mode-icon">âœï¸</span>
+                                <span className="mode-icon">✏️</span>
                                 <h3>Manual Setup</h3>
                                 <p>Choose from templates and customize phases, milestones, and content cadence yourself.</p>
                             </button>
@@ -384,7 +394,7 @@ const PlanWizard: React.FC = () => {
                                                             };
                                                             setPhases(updated);
                                                         }}
-                                                    >Ã—</button>
+                                                    >×</button>
                                                 </span>
                                             ))}
                                             <input
@@ -427,7 +437,7 @@ const PlanWizard: React.FC = () => {
 
                         <div className="preferences-sections">
                             <div className="pref-section">
-                                <h3>ðŸŽ¯ Platforms</h3>
+                                <h3>🎯 Platforms</h3>
                                 <div className="platform-toggles">
                                     {['twitter', 'linkedin', 'instagram', 'tiktok', 'reddit', 'facebook', 'email'].map(platform => (
                                         <button
@@ -442,7 +452,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="pref-section">
-                                <h3>âœ… Approval Workflow</h3>
+                                <h3>✅ Approval Workflow</h3>
                                 <div className="approval-options">
                                     {[
                                         { value: 'daily_digest', label: 'Daily Digest', desc: 'Review batch of content each morning' },
@@ -463,7 +473,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="pref-section">
-                                <h3>ðŸ“ Content Pillars</h3>
+                                <h3>📝 Content Pillars</h3>
                                 <div className="tags-input">
                                     {preferences.contentPillars.map((pillar, i) => (
                                         <span key={i} className="tag">
@@ -471,7 +481,7 @@ const PlanWizard: React.FC = () => {
                                             <button onClick={() => setPreferences({
                                                 ...preferences,
                                                 contentPillars: preferences.contentPillars.filter((_, idx) => idx !== i),
-                                            })}>Ã—</button>
+                                            })}>×</button>
                                         </span>
                                     ))}
                                     <input
@@ -494,7 +504,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="pref-section">
-                                <h3>â° Weekend Posting</h3>
+                                <h3>⏰ Weekend Posting</h3>
                                 <label className="toggle-switch">
                                     <input
                                         type="checkbox"
@@ -517,7 +527,7 @@ const PlanWizard: React.FC = () => {
 
                         <div className="review-sections">
                             <div className="review-section">
-                                <h4>ðŸ“‹ Plan Details</h4>
+                                <h4>📝‹ Plan Details</h4>
                                 <dl>
                                     <dt>Name</dt><dd>{planName}</dd>
                                     <dt>Product</dt><dd>{productName}</dd>
@@ -527,7 +537,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="review-section">
-                                <h4>ðŸ“… Phases ({phases.length})</h4>
+                                <h4>📝… Phases ({phases.length})</h4>
                                 <ul>
                                     {phases.map(p => (
                                         <li key={p.type}>
@@ -538,7 +548,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="review-section">
-                                <h4>ðŸŽ¯ Platforms</h4>
+                                <h4>🎯 Platforms</h4>
                                 <div className="platform-badges">
                                     {preferences.enabledPlatforms.map(p => (
                                         <span key={p} className="platform-badge">{p}</span>
@@ -547,7 +557,7 @@ const PlanWizard: React.FC = () => {
                             </div>
 
                             <div className="review-section">
-                                <h4>âœ… Approval</h4>
+                                <h4>✅ Approval</h4>
                                 <p>{preferences.approvalMode.replace('_', ' ')}</p>
                             </div>
                         </div>
@@ -558,7 +568,7 @@ const PlanWizard: React.FC = () => {
             <div className="wizard-actions">
                 {step !== 'mode' && (
                     <button className="btn btn-ghost" onClick={handleBack}>
-                        â† Back
+                        ← Back
                     </button>
                 )}
                 <div className="spacer"></div>

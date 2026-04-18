@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './store/AuthContext';
 import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+import CommandPalette from './components/ui/CommandPalette';
+import { ToastProvider } from './components/ui/Toast';
 import './index.css';
 
 // Lazy-loaded page components
@@ -67,6 +69,7 @@ function ProtectedLayout() {
 
   return (
     <div className="app-layout">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Sidebar />
       <Header onSearchClick={() => setCommandPaletteOpen(true)} />
       <main id="main-content" className="main-content" role="main">
@@ -74,6 +77,7 @@ function ProtectedLayout() {
           <Outlet />
         </ErrorBoundary>
       </main>
+      <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
     </div>
   );
 }
@@ -130,9 +134,11 @@ function App() {
   return (
     <AuthProvider>
       <DataProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <ToastProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </ToastProvider>
       </DataProvider>
     </AuthProvider>
   );

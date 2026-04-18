@@ -3,10 +3,13 @@ import { useData } from '../../store/DataContext';
 import { useAuth } from '../../store/AuthContext';
 import { Search, Bell, HelpCircle, LogOut } from 'lucide-react';
 
-export default function Header() {
+interface HeaderProps {
+    onSearchClick?: () => void;
+}
+
+export default function Header({ onSearchClick }: HeaderProps) {
     const { state } = useData();
     const { user, signOut } = useAuth();
-    const [searchFocused, setSearchFocused] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
     const unreadNotifications = state.notifications.filter(n => !n.read).length;
@@ -15,20 +18,19 @@ export default function Header() {
 
     return (
         <header className="app-header">
-            {/* Search */}
-            <div className="header-search">
-                <span className={`header-search-icon ${searchFocused ? 'focused' : ''}`}>
+            {/* Search — opens command palette */}
+            <button
+                type="button"
+                className="header-search header-search--button"
+                onClick={onSearchClick}
+                aria-label="Search (open command palette)"
+            >
+                <span className="header-search-icon">
                     <Search size={18} />
                 </span>
-                <input
-                    type="text"
-                    className="header-search-input"
-                    placeholder="Search leads, pages, experiments..."
-                    onFocus={() => setSearchFocused(true)}
-                    onBlur={() => setSearchFocused(false)}
-                />
+                <span className="header-search-placeholder">Search leads, pages, experiments...</span>
                 <kbd className="header-search-kbd">⌘K</kbd>
-            </div>
+            </button>
 
             {/* Right Section */}
             <div className="flex items-center gap-2">

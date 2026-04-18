@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../store/DataContext';
 
@@ -30,8 +30,8 @@ const Analytics: React.FC = () => {
     return (
         <div className="analytics-page">
             <div className="page-header">
-                <Link to="/autopilot" className="back-link">â† Back</Link>
-                <h1>ðŸ“Š Launch Analytics</h1>
+                <Link to="/autopilot" className="back-link">← Back</Link>
+                <h1>📊 Launch Analytics</h1>
             </div>
 
             <div className="stats-overview">

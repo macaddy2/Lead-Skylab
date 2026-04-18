@@ -1,3 +1,7 @@
+/* eslint-disable react-refresh/only-export-components */
+// This file co-locates the DataContext, its reducer, the initial state, and the
+// useData hook so consumers have a single import surface. React Fast Refresh
+// prefers component-only modules; the disable above is intentional.
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type {
@@ -302,7 +306,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useData(): DataContextType {
     const context = useContext(DataContext);
     if (!context) {
