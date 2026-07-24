@@ -285,26 +285,23 @@ a:hover {
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: white;
-  box-shadow: var(--shadow-md), 0 0 20px rgba(99, 102, 241, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(99, 102, 241, 0.3);
+  background: var(--color-primary-hover);
 }
 
 .btn-secondary {
   background: var(--glass-bg);
   color: var(--color-text-primary);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(12px);
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--glass-hover);
-  border-color: var(--color-primary);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .btn-ghost {
@@ -318,7 +315,7 @@ a:hover {
 }
 
 .btn-danger {
-  background: var(--gradient-accent);
+  background: var(--color-error);
   color: white;
 }
 
@@ -341,14 +338,13 @@ a:hover {
 .card {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  backdrop-filter: blur(12px);
-  transition: all var(--transition-base);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .card:hover {
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .card-header {
@@ -1798,10 +1794,7 @@ tr:hover td {
 
 .wizard-header h1 {
   margin-bottom: var(--spacing-6);
-  background: linear-gradient(135deg, var(--primary-400), var(--secondary-400));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text-primary);
 }
 
 .wizard-steps {
@@ -2319,13 +2312,11 @@ tr:hover td {
 }
 
 .hero-text h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 1.875rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
   margin: 0 0 var(--spacing-2);
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-primary);
 }
 
 .hero-text p {
@@ -2508,23 +2499,23 @@ tr:hover td {
 }
 
 .stat-total .stat-icon {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
+  background: rgba(99, 102, 241, 0.14);
+  color: #a5b4fc;
 }
 
 .stat-drafts .stat-icon {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24);
-  color: white;
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
 }
 
 .stat-scheduled .stat-icon {
-  background: linear-gradient(135deg, #a78bfa, #c4b5fd);
-  color: white;
+  background: rgba(167, 139, 250, 0.14);
+  color: #c4b5fd;
 }
 
 .stat-published .stat-icon {
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: white;
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
 }
 
 .stat-info {

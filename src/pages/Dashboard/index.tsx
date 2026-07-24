@@ -11,10 +11,10 @@ import { TrendingUp, TrendingDown, Users, Activity, Target, DollarSign, ArrowRig
 const COLORS = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
 
 const tooltipStyle = {
-    background: '#1a1a24',
+    background: '#1a1f2b',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '8px',
-    color: '#f8fafc',
+    color: '#f1f5f9',
 };
 
 interface MetricCardProps {
