@@ -150,7 +150,7 @@ export default function Templates() {
                                 </div>
                                 <p className="text-sm text-muted">{template.description}</p>
                                 <div className="flex gap-2 mt-2">
-                                    <span className="badge" className="text-capitalize">
+                                    <span className="badge text-capitalize">
                                         {categoryLabels[template.category] || template.category}
                                     </span>
                                 </div>

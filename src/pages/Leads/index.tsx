@@ -286,7 +286,7 @@ export default function Leads() {
                     </select>
 
                     {selectedLeads.length > 0 && (
-                        <button className="btn btn-ghost" className="text-error" onClick={handleBulkDelete}>
+                        <button className="btn btn-ghost text-error" onClick={handleBulkDelete}>
                             {icons.trash}
                             Delete ({selectedLeads.length})
                         </button>
@@ -394,8 +394,7 @@ export default function Leads() {
                                                 Edit
                                             </Link>
                                             <button
-                                                className="btn btn-ghost btn-sm"
-                                                className="text-error"
+                                                className="btn btn-ghost btn-sm text-error"
                                                 onClick={() => handleDeleteLead(lead.id)}
                                             >
                                                 {icons.trash}

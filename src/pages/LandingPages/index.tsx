@@ -198,8 +198,7 @@ export default function LandingPages() {
                                         Edit
                                     </Link>
                                     <button
-                                        className={`btn btn-sm ${page.status === 'published' ? 'btn-ghost' : 'btn-primary'}`}
-                                        className="flex-1"
+                                        className={`btn btn-sm flex-1 ${page.status === 'published' ? 'btn-ghost' : 'btn-primary'}`}
                                         onClick={() => togglePublish(page)}
                                     >
                                         {page.status === 'published' ? 'Unpublish' : 'Publish'}
@@ -208,18 +207,17 @@ export default function LandingPages() {
 
                                 <div className="flex gap-2 mt-2">
                                     {page.status === 'published' && (
-                                        <button className="btn btn-ghost btn-sm" className="flex-1">
+                                        <button className="btn btn-ghost btn-sm flex-1">
                                             {icons.externalLink}
                                             View
                                         </button>
                                     )}
-                                    <button className="btn btn-ghost btn-sm" className="flex-1" onClick={() => handleDuplicate(page)}>
+                                    <button className="btn btn-ghost btn-sm flex-1" onClick={() => handleDuplicate(page)}>
                                         {icons.copy}
                                         Copy
                                     </button>
                                     <button
-                                        className="btn btn-ghost btn-sm"
-                                        className="text-error"
+                                        className="btn btn-ghost btn-sm text-error"
                                         onClick={() => handleDelete(page.id)}
                                     >
                                         {icons.trash}

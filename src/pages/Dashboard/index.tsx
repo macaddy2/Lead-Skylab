@@ -7,8 +7,9 @@ import {
 } from 'recharts';
 import { TrendingUp, TrendingDown, Users, Activity, Target, DollarSign, ArrowRight } from 'lucide-react';
 
-// Color palette for charts
-const COLORS = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
+// Calm indigo ramp — keeps the pipeline funnel and source breakdown on a single
+// accent (dark → light) instead of a rainbow, matching the redesigned theme.
+const COLORS = ['#4338ca', '#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'];
 
 const tooltipStyle = {
     background: '#1a1f2b',
