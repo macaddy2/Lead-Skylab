@@ -4,6 +4,8 @@ import { DataProvider } from './store/DataContext';
 import { AuthProvider, useAuth } from './store/AuthContext';
 import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
+import MobileNav from './components/Layout/MobileNav';
+import MobileDrawer from './components/Layout/MobileDrawer';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import CommandPalette from './components/ui/CommandPalette';
 import { ToastProvider } from './components/ui/Toast';
@@ -42,6 +44,7 @@ const Login = lazy(() => import('./pages/Auth/Login'));
 function ProtectedLayout() {
   const { user, loading } = useAuth();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -71,12 +74,17 @@ function ProtectedLayout() {
     <div className="app-layout">
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Sidebar />
-      <Header onSearchClick={() => setCommandPaletteOpen(true)} />
+      <Header
+        onSearchClick={() => setCommandPaletteOpen(true)}
+        onMenuClick={() => setDrawerOpen(true)}
+      />
       <main id="main-content" className="main-content" role="main">
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>
       </main>
+      <MobileNav onMenuClick={() => setDrawerOpen(true)} />
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
     </div>
   );

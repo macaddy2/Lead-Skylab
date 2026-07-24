@@ -370,7 +370,7 @@ export default function ContentStudio() {
             {/* Quick Actions */}
             <div className="quick-actions">
                 <Link to="/content/analyze" className="action-card">
-                    <div className="action-icon" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                    <div className="action-icon" style={{ background: 'rgba(99, 102, 241, 0.14)', color: '#a5b4fc' }}>
                         {icons.sparkle}
                     </div>
                     <div className="action-content">
@@ -381,7 +381,7 @@ export default function ContentStudio() {
                 </Link>
 
                 <Link to="/content/campaigns" className="action-card">
-                    <div className="action-icon" style={{ background: 'linear-gradient(135deg, #10b981, #14b8a6)' }}>
+                    <div className="action-icon" style={{ background: 'rgba(16, 185, 129, 0.14)', color: '#34d399' }}>
                         {icons.calendar}
                     </div>
                     <div className="action-content">
@@ -392,7 +392,7 @@ export default function ContentStudio() {
                 </Link>
 
                 <Link to="/content/templates" className="action-card">
-                    <div className="action-icon" style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)' }}>
+                    <div className="action-icon" style={{ background: 'rgba(245, 158, 11, 0.14)', color: '#fbbf24' }}>
                         {icons.edit}
                     </div>
                     <div className="action-content">

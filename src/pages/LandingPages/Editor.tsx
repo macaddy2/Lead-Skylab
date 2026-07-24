@@ -569,7 +569,7 @@ export default function LandingPageEditor() {
                         style={{
                             padding: 'var(--space-16) var(--space-8)',
                             textAlign: heroContent.alignment,
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(180deg, #181c28 0%, #12151d 100%)',
                             color: 'white',
                         }}
                     >
@@ -665,7 +665,7 @@ export default function LandingPageEditor() {
                                             padding: 'var(--space-4)',
                                             fontSize: '1rem',
                                             fontWeight: '600',
-                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            background: 'var(--color-primary)',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: 'var(--radius-lg)',
