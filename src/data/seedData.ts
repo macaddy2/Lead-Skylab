@@ -13,12 +13,18 @@ import type {
     LandingPage,
     Experiment,
     Survey,
+    SurveyResponse,
     Audience,
     PMFMetrics,
     Activity,
     ContentTemplate,
     LaunchTemplate,
 } from '../types';
+
+// ─── Time helpers ───────────────────────────────────────────────────────────
+
+const DAY = 24 * 60 * 60 * 1000;
+const daysAgo = (n: number) => new Date(Date.now() - n * DAY).toISOString();
 
 // ─── PMF Metrics ──────────────────────────────────────────────────────────────
 
@@ -40,171 +46,132 @@ export const initialMetrics: PMFMetrics = {
 
 // ─── Leads ────────────────────────────────────────────────────────────────────
 
+const mkLead = (
+    name: string,
+    email: string,
+    company: string,
+    source: Lead['source'],
+    stage: Lead['stage'],
+    score: number,
+    createdDaysAgo: number,
+    tags: string[],
+    notes: string,
+    activeDaysAgo = Math.min(createdDaysAgo, 2),
+): Lead => ({
+    id: uuidv4(),
+    email,
+    name,
+    company,
+    source,
+    stage,
+    score,
+    tags,
+    notes,
+    createdAt: daysAgo(createdDaysAgo),
+    updatedAt: daysAgo(activeDaysAgo),
+    lastActivityAt: daysAgo(activeDaysAgo),
+});
+
 export const demoLeads: Lead[] = [
-    {
-        id: uuidv4(),
-        email: 'john.smith@techcorp.com',
-        name: 'John Smith',
-        company: 'TechCorp Inc',
-        phone: '+1 555-0123',
-        source: 'landing_page',
-        stage: 'qualified',
-        score: 85,
-        tags: ['enterprise', 'decision-maker'],
-        notes: 'Very interested in the product. Scheduled demo for next week.',
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        lastActivityAt: new Date().toISOString(),
-    },
-    {
-        id: uuidv4(),
-        email: 'sarah.johnson@startup.io',
-        name: 'Sarah Johnson',
-        company: 'Startup.io',
-        source: 'referral',
-        stage: 'contacted',
-        score: 72,
-        tags: ['startup', 'early-adopter'],
-        notes: 'Referred by existing customer. Looking for PMF tools.',
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        lastActivityAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: uuidv4(),
-        email: 'mike.wilson@agency.co',
-        name: 'Mike Wilson',
-        company: 'Digital Agency Co',
-        source: 'organic',
-        stage: 'new',
-        score: 45,
-        tags: ['agency'],
-        notes: '',
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        lastActivityAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: uuidv4(),
-        email: 'emma.davis@fundedco.com',
-        name: 'Emma Davis',
-        company: 'FundedCo',
-        phone: '+1 555-0456',
-        source: 'paid_ad',
-        stage: 'proposal',
-        score: 92,
-        tags: ['funded', 'hot-lead', 'enterprise'],
-        notes: 'Series B startup. Ready to buy. Send proposal ASAP.',
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        lastActivityAt: new Date().toISOString(),
-    },
-    {
-        id: uuidv4(),
-        email: 'alex.chen@innovate.tech',
-        name: 'Alex Chen',
-        company: 'Innovate Tech',
-        source: 'social',
-        stage: 'new',
-        score: 38,
-        tags: ['tech'],
-        notes: 'Downloaded whitepaper from LinkedIn campaign.',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        lastActivityAt: new Date().toISOString(),
-    },
+    mkLead('Priya Raghavan', 'priya@marlowehealth.com', 'Marlowe Health', 'landing_page', 'qualified', 86, 2, ['enterprise', 'decision-maker'], 'Demo booked for Jul 29. Wants HIPAA notes before security review.'),
+    mkLead('Marcus Reid', 'marcus@fernwoodcapital.com', 'Fernwood Capital', 'paid_ad', 'proposal', 91, 7, ['funded', 'hot-lead'], 'Series B. Proposal sent Jul 21 — following up Friday.'),
+    mkLead('Tom Hardwick', 'tom@grainandco.com', 'Grain & Co', 'referral', 'negotiation', 88, 14, ['smb'], 'Negotiating annual plan, asked for 15% multi-seat discount.'),
+    mkLead('Sofia Marchetti', 'sofia@lumeoanalytics.com', 'Lumeo Analytics', 'landing_page', 'qualified', 79, 5, ['analytics'], ''),
+    mkLead('Daniel Okafor', 'd.okafor@brightpath.io', 'Brightpath Labs', 'referral', 'contacted', 71, 4, ['startup', 'early-adopter'], 'Referred by Nordvik. Evaluating vs. spreadsheet workflow.'),
+    mkLead('Jake Tran', 'jake.tran@parcelly.app', 'Parcelly', 'organic', 'contacted', 63, 3, [], ''),
+    mkLead('Hannah Osei', 'hannah@goldcoastmedia.com', 'GoldCoast Media', 'social', 'contacted', 58, 6, ['agency'], ''),
+    mkLead('Ingrid Halvorsen', 'ingrid@nordvikstudio.no', 'Nordvik Studio', 'referral', 'won', 95, 24, ['case-study'], 'Closed Jul 8 — 12 seats annual. Agreed to case study.', 16),
+    mkLead('Elena Ruiz', 'elena@solterraenergy.com', 'Solterra Energy', 'landing_page', 'won', 90, 30, ['enterprise'], '', 22),
+    mkLead('Grace Liu', 'grace@meridianrobotics.com', 'Meridian Robotics', 'paid_ad', 'proposal', 84, 10, ['hardware'], ''),
+    mkLead('Lena Vogel', 'lena.vogel@statlerworks.de', 'Statler Works', 'organic', 'new', 44, 1, [], ''),
+    mkLead('Aisha Bello', 'aisha@kestrelapps.com', 'Kestrel Apps', 'social', 'new', 39, 1, [], 'Downloaded the PMF playbook.'),
+    mkLead('Omar Haddad', 'omar@cairocode.dev', 'CairoCode', 'organic', 'new', 35, 0, [], ''),
+    mkLead('Zoe Baxter', 'zoe@pixelforge.studio', 'Pixelforge', 'landing_page', 'new', 41, 0, [], ''),
+    mkLead('Pete Lindqvist', 'pete@fjordsystems.se', 'Fjord Systems', 'referral', 'qualified', 76, 9, ['nordics'], ''),
+    mkLead('Maria Santos', 'maria@alamedafoods.com', 'Alameda Foods', 'paid_ad', 'contacted', 55, 8, [], ''),
+    mkLead('Chris Doyle', 'chris@redbrickins.com', 'Redbrick Insurance', 'direct', 'new', 48, 2, [], ''),
+    mkLead('Yuki Tanaka', 'yuki@sakurametrics.jp', 'Sakura Metrics', 'organic', 'qualified', 81, 12, ['apac'], ''),
+    mkLead('Sam Whitfield', 'sam@copperfieldbooks.com', 'Copperfield Books', 'social', 'new', 33, 3, [], ''),
+    mkLead('Nadia Petrova', 'nadia@volnagames.io', 'Volna Games', 'landing_page', 'negotiation', 87, 16, ['gaming'], 'Legal reviewing DPA.'),
 ];
 
 // ─── Landing Pages ────────────────────────────────────────────────────────────
 
+const mkPage = (
+    title: string,
+    slug: string,
+    status: LandingPage['status'],
+    template: LandingPage['template'],
+    headline: string,
+    subheadline: string,
+    ctaText: string,
+    views: number,
+    signups: number,
+    conversionRate: number,
+    createdDaysAgo: number,
+): LandingPage => ({
+    id: uuidv4(),
+    title,
+    slug,
+    status,
+    template,
+    sections: [
+        {
+            id: uuidv4(),
+            type: 'hero',
+            order: 0,
+            content: { headline, subheadline, ctaText, ctaLink: '#signup', alignment: 'center' },
+        },
+        {
+            id: uuidv4(),
+            type: 'form',
+            order: 1,
+            content: {
+                title: 'Get started',
+                subtitle: 'No credit card required',
+                fields: [
+                    { id: '1', type: 'email', label: 'Work email', required: true },
+                    { id: '2', type: 'text', label: 'Company', required: false },
+                ],
+                submitText: ctaText,
+                successMessage: 'Thanks! Check your inbox to continue.',
+            },
+        },
+    ],
+    settings: {
+        metaTitle: `${title} · Lead Skylab`,
+        metaDescription: subheadline,
+    },
+    analytics: {
+        views,
+        uniqueVisitors: Math.round(views * 0.82),
+        formSubmissions: signups,
+        conversionRate,
+        avgTimeOnPage: 96,
+        bounceRate: 44,
+    },
+    createdAt: daysAgo(createdDaysAgo),
+    updatedAt: daysAgo(Math.min(createdDaysAgo, 3)),
+    publishedAt: status === 'published' ? daysAgo(createdDaysAgo) : undefined,
+});
+
 export const demoLandingPages: LandingPage[] = [
-    {
-        id: uuidv4(),
-        title: 'Product Launch - Main',
-        slug: 'product-launch',
-        status: 'published',
-        template: 'hero_simple',
-        sections: [
-            {
-                id: uuidv4(),
-                type: 'hero',
-                order: 0,
-                content: {
-                    headline: 'Ship Your MVP with Confidence',
-                    subheadline: 'Validate product-market fit faster with automated lead generation and real-time feedback.',
-                    ctaText: 'Get Started Free',
-                    ctaLink: '#signup',
-                    alignment: 'center',
-                },
-            },
-            {
-                id: uuidv4(),
-                type: 'form',
-                order: 1,
-                content: {
-                    title: 'Start Your Free Trial',
-                    subtitle: 'No credit card required',
-                    fields: [
-                        { id: '1', type: 'text', label: 'Full Name', required: true },
-                        { id: '2', type: 'email', label: 'Work Email', required: true },
-                        { id: '3', type: 'text', label: 'Company', required: false },
-                    ],
-                    submitText: 'Start Free Trial',
-                    successMessage: 'Thanks! Check your email to get started.',
-                },
-            },
-        ],
-        settings: {
-            metaTitle: 'Lead Skylab - Ship Your MVP with Confidence',
-            metaDescription: 'Validate product-market fit faster with automated lead generation.',
-        },
-        analytics: {
-            views: 2840,
-            uniqueVisitors: 2156,
-            formSubmissions: 342,
-            conversionRate: 15.9,
-            avgTimeOnPage: 125,
-            bounceRate: 42,
-        },
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        publishedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: uuidv4(),
-        title: 'Early Access Waitlist',
-        slug: 'early-access',
-        status: 'published',
-        template: 'hero_split',
-        sections: [
-            {
-                id: uuidv4(),
-                type: 'hero',
-                order: 0,
-                content: {
-                    headline: 'Be First to Experience the Future',
-                    subheadline: 'Join our exclusive early access program and shape the product.',
-                    ctaText: 'Join Waitlist',
-                    alignment: 'left',
-                },
-            },
-        ],
-        settings: {
-            metaTitle: 'Early Access - Lead Skylab',
-            metaDescription: 'Join our exclusive early access program.',
-        },
-        analytics: {
-            views: 1560,
-            uniqueVisitors: 1234,
-            formSubmissions: 890,
-            conversionRate: 72.1,
-            avgTimeOnPage: 45,
-            bounceRate: 18,
-        },
-        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        publishedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    },
+    mkPage('Spring Launch — Free Trial', 'spring-trial', 'published', 'hero_simple',
+        'Ship your MVP with confidence',
+        'Validate product-market fit faster with automated lead capture and real-time feedback loops.',
+        'Start free trial', 12480, 486, 3.9, 34),
+    mkPage('Early Access Waitlist', 'early-access', 'published', 'hero_split',
+        'Be first in line for Skylab 2.0',
+        'Join 1,200+ founders on the waitlist and shape what we build next.',
+        'Join the waitlist', 8912, 1204, 13.5, 45),
+    mkPage('Webinar: PMF in 30 Days', 'pmf-webinar', 'published', 'hero_simple',
+        'Find product-market fit in 30 days',
+        'A live working session with founders who have done it — Aug 12, 10am PT.',
+        'Save my seat', 3145, 402, 12.8, 12),
+    mkPage('Pricing Experiment B', 'pricing-b', 'draft', 'pricing',
+        'Simple pricing that scales with you',
+        'One plan, every feature. $49/mo per workspace, cancel anytime.',
+        'See pricing', 0, 0, 0, 1),
 ];
 
 // ─── Experiments ──────────────────────────────────────────────────────────────
@@ -212,85 +179,157 @@ export const demoLandingPages: LandingPage[] = [
 export const demoExperiments: Experiment[] = [
     {
         id: uuidv4(),
-        name: 'Hero Headline A/B Test',
-        description: 'Testing different value propositions in the hero section',
+        name: 'Hero headline — value prop test',
+        description: 'Testing two value propositions in the Spring Launch hero',
         status: 'running',
         type: 'headline',
         targetId: demoLandingPages[0].id,
         variants: [
             {
                 id: 'a',
-                name: 'Variant A - Ship with Confidence',
-                content: { headline: 'Ship Your MVP with Confidence' },
+                name: 'A · "Ship your MVP with confidence"',
+                content: { headline: 'Ship your MVP with confidence' },
                 impressions: 1420,
                 conversions: 176,
                 conversionRate: 12.4,
             },
             {
                 id: 'b',
-                name: 'Variant B - Validate Faster',
-                content: { headline: 'Validate Product-Market Fit 10x Faster' },
-                impressions: 1420,
-                conversions: 117,
+                name: 'B · "Validate PMF 10× faster"',
+                content: { headline: 'Validate PMF 10× faster' },
+                impressions: 1418,
+                conversions: 116,
                 conversionRate: 8.2,
             },
         ],
         trafficSplit: [50, 50],
         metric: 'conversions',
-        startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
+        startDate: daysAgo(7),
+        createdAt: daysAgo(7),
+        updatedAt: daysAgo(0),
     },
     {
         id: uuidv4(),
-        name: 'CTA Button Color Test',
-        description: 'Testing purple vs teal CTA button',
+        name: 'CTA color — indigo vs teal',
+        description: 'Spring Launch page · button colour test',
         status: 'completed',
         type: 'cta',
         targetId: demoLandingPages[0].id,
         variants: [
             {
                 id: 'a',
-                name: 'Purple Button',
+                name: 'A · Indigo button',
                 // NOTE: color here is experiment data payload, not UI styling
                 content: { color: '#6366f1' },
-                impressions: 2000,
-                conversions: 280,
+                impressions: 2004,
+                conversions: 281,
                 conversionRate: 14.0,
             },
             {
                 id: 'b',
-                name: 'Teal Button',
+                name: 'B · Teal button',
                 content: { color: '#14b8a6' },
-                impressions: 2000,
+                impressions: 1998,
                 conversions: 340,
                 conversionRate: 17.0,
             },
         ],
         trafficSplit: [50, 50],
         metric: 'clicks',
-        startDate: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-        endDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        startDate: daysAgo(30),
+        endDate: daysAgo(16),
         winner: 'b',
-        createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        createdAt: daysAgo(30),
+        updatedAt: daysAgo(16),
+    },
+    {
+        id: uuidv4(),
+        name: 'Pricing page — 2-tier vs single plan',
+        description: 'Pricing Experiment B · not started',
+        status: 'draft',
+        type: 'landing_page',
+        targetId: demoLandingPages[3].id,
+        variants: [
+            {
+                id: 'a',
+                name: 'A · Two tiers',
+                content: { layout: 'two_tier' },
+                impressions: 0,
+                conversions: 0,
+                conversionRate: 0,
+            },
+            {
+                id: 'b',
+                name: 'B · Single plan',
+                content: { layout: 'single' },
+                impressions: 0,
+                conversions: 0,
+                conversionRate: 0,
+            },
+        ],
+        trafficSplit: [50, 50],
+        metric: 'signups',
+        createdAt: daysAgo(3),
+        updatedAt: daysAgo(3),
     },
 ];
 
 // ─── Surveys ──────────────────────────────────────────────────────────────────
 
+/**
+ * Build a realistic PMF/NPS response set. The mix is tuned so promoters −
+ * detractors lands around the target NPS (e.g. 42 over 156 responses).
+ */
+const buildNpsResponses = (
+    surveyId: string,
+    promoters: number,
+    passives: number,
+    detractors: number,
+): SurveyResponse[] => {
+    const disappointment = ['Very disappointed', 'Somewhat disappointed', 'Not disappointed'];
+    const benefits = [
+        'Saves me hours of manual lead triage every week',
+        'Finally see which channels actually convert',
+        'The experiments make copy decisions data-driven',
+        'One place for pipeline, pages and surveys',
+        'Helped us hit PMF faster than spreadsheets ever did',
+    ];
+    const rows: SurveyResponse[] = [];
+    let i = 0;
+    const push = (value: number) => {
+        rows.push({
+            id: uuidv4(),
+            surveyId,
+            respondentEmail: `founder${i + 1}@example.com`,
+            answers: [
+                { questionId: '1', value },
+                { questionId: '2', value: value >= 9 ? disappointment[0] : value >= 7 ? disappointment[1] : disappointment[2] },
+                { questionId: '3', value: benefits[i % benefits.length] },
+            ],
+            completedAt: daysAgo((i % 28) + 1),
+        });
+        i += 1;
+    };
+    for (let k = 0; k < promoters; k++) push(9 + (k % 2)); // 9–10
+    for (let k = 0; k < passives; k++) push(7 + (k % 2)); // 7–8
+    for (let k = 0; k < detractors; k++) push(k % 7); // 0–6
+    return rows;
+};
+
+const pmfSurveyId = uuidv4();
+
 export const demoSurveys: Survey[] = [
     {
-        id: uuidv4(),
-        title: 'PMF Survey - Q1 2026',
-        description: 'Quarterly product-market fit assessment',
+        id: pmfSurveyId,
+        title: 'PMF Survey — Q3 2026',
+        description: 'Quarterly product-market fit check',
         status: 'active',
         type: 'pmf',
         questions: [
             {
                 id: '1',
                 type: 'nps',
-                question: 'How likely are you to recommend our product to a friend or colleague?',
+                question: 'How likely are you to recommend Lead Skylab to a friend or colleague?',
                 required: true,
                 min: 0,
                 max: 10,
@@ -299,7 +338,7 @@ export const demoSurveys: Survey[] = [
             {
                 id: '2',
                 type: 'single_choice',
-                question: 'How would you feel if you could no longer use our product?',
+                question: 'How would you feel if you could no longer use Lead Skylab?',
                 required: true,
                 options: ['Very disappointed', 'Somewhat disappointed', 'Not disappointed'],
                 order: 1,
@@ -307,7 +346,7 @@ export const demoSurveys: Survey[] = [
             {
                 id: '3',
                 type: 'open_ended',
-                question: 'What is the main benefit you receive from our product?',
+                question: 'What is the main benefit you get from Lead Skylab?',
                 required: false,
                 order: 2,
             },
@@ -317,21 +356,42 @@ export const demoSurveys: Survey[] = [
             allowAnonymous: false,
             thankYouMessage: 'Thank you for your feedback! It helps us improve.',
         },
-        responses: [
+        // 86 promoters − 20 detractors over 156 → NPS ≈ 42
+        responses: buildNpsResponses(pmfSurveyId, 86, 50, 20),
+        createdAt: daysAgo(30),
+        updatedAt: daysAgo(0),
+    },
+    {
+        id: uuidv4(),
+        title: 'Onboarding Feedback',
+        description: 'Sent 7 days after signup',
+        status: 'draft',
+        type: 'custom',
+        questions: [
             {
-                id: uuidv4(),
-                surveyId: '',
-                respondentEmail: 'john@example.com',
-                answers: [
-                    { questionId: '1', value: 9 },
-                    { questionId: '2', value: 'Very disappointed' },
-                    { questionId: '3', value: 'Saves me hours of manual work every week' },
-                ],
-                completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                id: '1',
+                type: 'single_choice',
+                question: 'How easy was it to set up your first landing page?',
+                required: true,
+                options: ['Very easy', 'Somewhat easy', 'Difficult'],
+                order: 0,
+            },
+            {
+                id: '2',
+                type: 'open_ended',
+                question: 'What almost stopped you from finishing setup?',
+                required: false,
+                order: 1,
             },
         ],
-        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
+        settings: {
+            showProgressBar: true,
+            allowAnonymous: true,
+            thankYouMessage: 'Thanks — this helps us smooth out onboarding.',
+        },
+        responses: [],
+        createdAt: daysAgo(6),
+        updatedAt: daysAgo(6),
     },
 ];
 
@@ -376,38 +436,47 @@ export const demoActivities: Activity[] = [
     {
         id: uuidv4(),
         type: 'lead_created',
-        title: 'New Lead Captured',
-        description: 'Alex Chen signed up from LinkedIn campaign',
-        entityId: demoLeads[4].id,
+        title: 'New lead captured',
+        description: 'Zoe Baxter signed up via the Spring Launch page',
+        entityId: demoLeads[13].id,
         entityType: 'lead',
-        timestamp: new Date().toISOString(),
-    },
-    {
-        id: uuidv4(),
-        type: 'experiment_completed',
-        title: 'Experiment Completed',
-        description: 'CTA Button Color Test finished - Teal won with 17% CTR',
-        entityId: demoExperiments[1].id,
-        entityType: 'experiment',
-        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-        id: uuidv4(),
-        type: 'survey_response',
-        title: 'Survey Response',
-        description: 'New PMF survey response received - NPS: 9',
-        entityId: demoSurveys[0].id,
-        entityType: 'survey',
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        timestamp: daysAgo(0),
     },
     {
         id: uuidv4(),
         type: 'lead_converted',
-        title: 'Lead Converted',
-        description: 'Emma Davis moved to Proposal stage',
-        entityId: demoLeads[3].id,
+        title: 'Deal won',
+        description: 'Ingrid Halvorsen closed — 12 seats annual (Nordvik Studio)',
+        entityId: demoLeads[7].id,
         entityType: 'lead',
-        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: uuidv4(),
+        type: 'experiment_completed',
+        title: 'Experiment completed',
+        description: 'CTA colour test finished — Teal won at 17.0% (98% confidence)',
+        entityId: demoExperiments[1].id,
+        entityType: 'experiment',
+        timestamp: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: uuidv4(),
+        type: 'survey_response',
+        title: 'Survey response',
+        description: 'New PMF survey response received — NPS 9',
+        entityId: demoSurveys[0].id,
+        entityType: 'survey',
+        timestamp: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: uuidv4(),
+        type: 'lead_created',
+        title: 'New lead captured',
+        description: 'Omar Haddad signed up (organic search)',
+        entityId: demoLeads[12].id,
+        entityType: 'lead',
+        timestamp: daysAgo(1),
     },
 ];
 

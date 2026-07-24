@@ -37,7 +37,7 @@ function MetricCard({ label, value, trend, icon, variant = 'primary' }: MetricCa
                 <div className={`metric-trend mt-2 ${trend.isPositive ? 'up' : 'down'}`}>
                     {trend.isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                     <span>{trend.isPositive ? '+' : ''}{trend.value}%</span>
-                    <span className="text-muted" style={{ marginLeft: 'var(--space-1)' }}>vs last week</span>
+                    <span className="text-muted" style={{ marginLeft: 'var(--space-1)' }}>vs last month</span>
                 </div>
             )}
         </div>
@@ -173,44 +173,20 @@ export default function Dashboard() {
             {/* Page Header */}
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">PMF Dashboard</h1>
-                    <p className="page-subtitle">Track your product-market fit metrics in real-time</p>
+                    <h1 className="page-title">Dashboard</h1>
+                    <p className="page-subtitle">Product-market fit signals · updated 12 minutes ago</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="btn btn-secondary">Export Report</button>
-                    <button className="btn btn-primary">Refresh Data</button>
+                    <button className="btn btn-secondary">Export report</button>
+                    <Link to="/leads" className="btn btn-primary">Add lead</Link>
                 </div>
-            </div>
-
-            {/* PMF Score Hero */}
-            <div
-                className="card mb-6 p-8 text-center"
-                style={{
-                    background: 'rgba(99, 102, 241, 0.06)',
-                    border: '1px solid rgba(99, 102, 241, 0.18)',
-                }}
-            >
-                <p className="text-muted text-sm mb-2">OVERALL PMF SCORE</p>
-                <div className="page-title" style={{ fontSize: '5rem', lineHeight: 1 }}>
-                    {metrics.overallScore}
-                </div>
-                <div className="flex items-center justify-center gap-2 mt-4">
-                    <div className="metric-trend up">
-                        <TrendingUp size={16} />
-                        <span>+5 from last month</span>
-                    </div>
-                </div>
-                <p className="text-muted text-sm mt-4" style={{ maxWidth: '600px', margin: 'var(--space-4) auto 0' }}>
-                    Based on NPS ({metrics.npsScore}), activation rate ({metrics.activationRate}%),
-                    retention ({metrics.retentionRate}%), and user engagement metrics.
-                </p>
             </div>
 
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-4 mb-6">
-                <MetricCard label="NPS Score" value={`+${metrics.npsScore}`} trend={{ value: 8, isPositive: true }} icon={<Activity size={24} />} variant="primary" />
-                <MetricCard label="Activation Rate" value={`${metrics.activationRate}%`} trend={{ value: 3.2, isPositive: true }} icon={<Target size={24} />} variant="secondary" />
-                <MetricCard label="Retention (30d)" value={`${metrics.retentionRate}%`} trend={{ value: 2.1, isPositive: false }} icon={<Users size={24} />} variant="success" />
+                <MetricCard label="Total Leads" value={leads.length} trend={{ value: 12, isPositive: true }} icon={<Users size={24} />} variant="primary" />
+                <MetricCard label="NPS Score" value={`+${metrics.npsScore}`} trend={{ value: 8, isPositive: true }} icon={<Activity size={24} />} variant="secondary" />
+                <MetricCard label="Activation Rate" value={`${metrics.activationRate}%`} trend={{ value: 3.2, isPositive: true }} icon={<Target size={24} />} variant="success" />
                 <MetricCard label="MRR" value={formatCurrency(metrics.mrr)} trend={{ value: 7.8, isPositive: true }} icon={<DollarSign size={24} />} variant="warning" />
             </div>
 
