@@ -279,8 +279,7 @@ export default function Experiments() {
                                         </>
                                     )}
                                     <button
-                                        className="btn btn-ghost btn-sm"
-                                        className="text-error"
+                                        className="btn btn-ghost btn-sm text-error"
                                         onClick={() => handleDelete(exp.id)}
                                     >
                                         {icons.trash}

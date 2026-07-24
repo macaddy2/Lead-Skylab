@@ -186,8 +186,7 @@ export default function Surveys() {
             {/* Templates */}
             <div className="grid grid-cols-3 mb-6">
                 <div
-                    className="card"
-                    className="p-5 cursor-pointer"
+                    className="card p-5 cursor-pointer"
                     onClick={() => {
                         setNewSurvey({ title: 'PMF Survey', description: 'Measure product-market fit', type: 'pmf' });
                         setShowCreateModal(true);
@@ -215,8 +214,7 @@ export default function Surveys() {
                 </div>
 
                 <div
-                    className="card"
-                    className="p-5 cursor-pointer"
+                    className="card p-5 cursor-pointer"
                     onClick={() => {
                         setNewSurvey({ title: 'NPS Survey', description: 'Measure customer loyalty', type: 'nps' });
                         setShowCreateModal(true);
@@ -244,8 +242,7 @@ export default function Surveys() {
                 </div>
 
                 <div
-                    className="card"
-                    className="p-5 cursor-pointer"
+                    className="card p-5 cursor-pointer"
                     onClick={() => {
                         setNewSurvey({ title: '', description: '', type: 'custom' });
                         setShowCreateModal(true);
@@ -315,8 +312,7 @@ export default function Surveys() {
                                     </div>
                                     <div className="flex gap-2">
                                         <button
-                                            className="btn btn-ghost btn-sm"
-                                            className="text-error"
+                                            className="btn btn-ghost btn-sm text-error"
                                             onClick={() => handleDelete(survey.id)}
                                         >
                                             {icons.trash}
