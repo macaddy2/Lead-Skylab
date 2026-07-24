@@ -229,6 +229,10 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'lead_skylab_state';
+const VERSION_KEY = 'lead_skylab_state_version';
+// Bump when the seed/demo dataset changes so returning sessions with a stale
+// cached copy get refreshed from the current seed data instead of old records.
+const STORAGE_VERSION = '2026-07-24-realistic-seed';
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
@@ -238,6 +242,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // Load from localStorage on mount
     useEffect(() => {
         try {
+            const savedVersion = localStorage.getItem(VERSION_KEY);
+            if (savedVersion !== STORAGE_VERSION) {
+                // Stale (or first-time) cache — discard it and start from the
+                // current seed data. Their edits then persist under the new key.
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.setItem(VERSION_KEY, STORAGE_VERSION);
+                return;
+            }
             const savedState = localStorage.getItem(STORAGE_KEY);
             if (savedState) {
                 const parsed = JSON.parse(savedState);
@@ -252,6 +264,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            localStorage.setItem(VERSION_KEY, STORAGE_VERSION);
         } catch (error) {
             console.error('Failed to save state to localStorage:', error);
         }
