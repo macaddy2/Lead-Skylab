@@ -44,7 +44,7 @@ export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
             </button>
 
             {/* Right Section */}
-            <div className="flex items-center gap-2">
+            <div className="header-actions flex items-center gap-2">
                 {/* PMF Score Badge */}
                 <div className="pmf-badge">
                     <div className={`pmf-dot ${pmfDotClass}`} />
@@ -53,7 +53,7 @@ export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
                 </div>
 
                 {/* Help Button */}
-                <button className="icon-btn">
+                <button className="icon-btn hide-mobile">
                     <HelpCircle size={18} />
                 </button>
 

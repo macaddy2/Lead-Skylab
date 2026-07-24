@@ -3198,23 +3198,8 @@ tr:hover td {
   to { transform: translateX(0); }
 }
 
-@media (max-width: 900px) {
-  .sidebar {
-    display: none;
-  }
-
-  .app-header {
-    left: 0;
-  }
-
-  .header-menu-btn {
-    display: flex;
-  }
-
-  .mobile-nav {
-    display: flex;
-  }
-}
+/* Mobile shell overrides live at the very end of this file (after all the
+   base .sidebar / .app-header / .header-* rules) so they win on source order. */
 
 /* =============================================
    Utility Classes (additions)
@@ -3985,5 +3970,55 @@ textarea:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+/* =============================================
+   Mobile shell overrides (must come LAST so they
+   override the base .sidebar / .app-header / .header-*
+   rules on source order at equal specificity)
+   ============================================= */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .app-header {
+    left: 0;
+    gap: var(--space-2);
+    padding: 0 var(--space-3);
+  }
+
+  .header-menu-btn {
+    display: flex;
+  }
+
+  .mobile-nav {
+    display: flex;
+  }
+
+  /* Declutter the mobile top bar: let the search shrink and drop
+     the wider secondary controls (they live in the sidebar/drawer). */
+  .header-search {
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .header-search--button .header-search-kbd {
+    display: none;
+  }
+
+  .app-header .pmf-badge,
+  .app-header .hide-mobile {
+    display: none;
+  }
+
+  .header-actions {
+    flex-shrink: 0;
+  }
+
+  .icon-btn,
+  .user-avatar-btn {
+    flex-shrink: 0;
   }
 }
