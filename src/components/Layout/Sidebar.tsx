@@ -1,37 +1,12 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-    LayoutDashboard,
-    FileText,
-    Users,
-    Target,
-    FlaskConical,
-    ClipboardList,
-    Pencil,
-    Rocket,
     Settings,
     ChevronsLeft,
     ChevronsRight,
     Layers,
-    type LucideIcon,
 } from 'lucide-react';
-
-interface NavItem {
-    path: string;
-    label: string;
-    icon: LucideIcon;
-}
-
-const navItems: NavItem[] = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/pages', label: 'Landing Pages', icon: FileText },
-    { path: '/leads', label: 'Leads', icon: Users },
-    { path: '/audience', label: 'Audience', icon: Target },
-    { path: '/experiments', label: 'Experiments', icon: FlaskConical },
-    { path: '/surveys', label: 'Surveys', icon: ClipboardList },
-    { path: '/content', label: 'Content Studio', icon: Pencil },
-    { path: '/autopilot', label: 'Launch Autopilot', icon: Rocket },
-];
+import { navItems, isNavActive } from './navItems';
 
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(false);
@@ -56,17 +31,18 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation */}
-            <nav className="sidebar-nav">
+            <nav className="sidebar-nav" aria-label="Main navigation">
                 <ul className="sidebar-nav-list">
                     {navItems.map((item) => {
-                        const isActive = location.pathname === item.path ||
-                            (item.path !== '/' && location.pathname.startsWith(item.path));
+                        const isActive = isNavActive(item.path, location.pathname);
                         const Icon = item.icon;
 
                         return (
                             <li key={item.path}>
                                 <NavLink
                                     to={item.path}
+                                    aria-current={isActive ? 'page' : undefined}
+                                    title={collapsed ? item.label : undefined}
                                     className={`sidebar-nav-link ${isActive ? 'active' : ''}`}
                                     style={{
                                         padding: collapsed ? 'var(--space-3)' : 'var(--space-3) var(--space-4)',
@@ -116,6 +92,8 @@ export default function Sidebar() {
                 <button
                     onClick={() => setCollapsed(!collapsed)}
                     className="sidebar-collapse-btn"
+                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    aria-expanded={!collapsed}
                 >
                     {collapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
                 </button>

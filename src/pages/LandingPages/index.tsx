@@ -144,7 +144,7 @@ export default function LandingPages() {
                                 style={{
                                     height: '120px',
                                     background: page.status === 'published'
-                                        ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)'
+                                        ? 'rgba(99, 102, 241, 0.12)'
                                         : 'var(--color-bg-tertiary)',
                                     display: 'flex',
                                     alignItems: 'center',

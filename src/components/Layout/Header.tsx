@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useData } from '../../store/DataContext';
 import { useAuth } from '../../store/AuthContext';
-import { Search, Bell, HelpCircle, LogOut } from 'lucide-react';
+import { Search, Bell, HelpCircle, LogOut, Menu } from 'lucide-react';
 
 interface HeaderProps {
     onSearchClick?: () => void;
+    onMenuClick?: () => void;
 }
 
-export default function Header({ onSearchClick }: HeaderProps) {
+export default function Header({ onSearchClick, onMenuClick }: HeaderProps) {
     const { state } = useData();
     const { user, signOut } = useAuth();
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -17,7 +18,17 @@ export default function Header({ onSearchClick }: HeaderProps) {
     const pmfDotClass = pmfScore >= 70 ? 'pmf-dot--success' : pmfScore >= 40 ? 'pmf-dot--warning' : 'pmf-dot--error';
 
     return (
-        <header className="app-header">
+        <header className="app-header" role="banner">
+            {/* Hamburger — mobile only (opens navigation drawer) */}
+            <button
+                type="button"
+                className="header-menu-btn"
+                onClick={onMenuClick}
+                aria-label="Open navigation menu"
+            >
+                <Menu size={20} />
+            </button>
+
             {/* Search — opens command palette */}
             <button
                 type="button"

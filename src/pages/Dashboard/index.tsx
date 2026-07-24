@@ -186,8 +186,8 @@ export default function Dashboard() {
             <div
                 className="card mb-6 p-8 text-center"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(6, 182, 212, 0.1) 100%)',
-                    border: '1px solid rgba(99, 102, 241, 0.2)',
+                    background: 'rgba(99, 102, 241, 0.06)',
+                    border: '1px solid rgba(99, 102, 241, 0.18)',
                 }}
             >
                 <p className="text-muted text-sm mb-2">OVERALL PMF SCORE</p>
