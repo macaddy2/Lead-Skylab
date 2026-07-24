@@ -849,42 +849,15 @@ tr:hover td {
 /* Metric Card Styles */
 .metric-card {
   position: relative;
-  overflow: hidden;
 }
 
-.metric-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-
-.metric-card.primary::before {
-  background: var(--gradient-primary);
-}
-
-.metric-card.secondary::before {
-  background: var(--gradient-secondary);
-}
-
-.metric-card.success::before {
-  background: var(--gradient-success);
-}
-
-.metric-card.warning::before {
-  background: var(--gradient-warning);
-}
-
-.metric-card.accent::before {
-  background: var(--gradient-accent);
-}
+/* Prototype metric cards are flat — no coloured top accent stripe.
+   Variant classes (.primary/.success/…) are kept for the icon tint only. */
 
 .metric-value {
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
   line-height: 1;
   margin: var(--space-2) 0;
   animation: countUp 0.5s ease-out forwards;

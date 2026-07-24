@@ -107,7 +107,7 @@ export default function Campaigns() {
 
             {/* Create Campaign Form */}
             {showCreate && (
-                <div className="card mb-6" className="p-6">
+                <div className="card mb-6 p-6">
                     <h3 className="font-semibold mb-4">Create New Campaign</h3>
 
                     <div className="form-group mb-4">
